@@ -1,11 +1,15 @@
 async function ledOn(){
 
-    await fetch("/led/on");
+    await fetch("/api/v1/led/on", {
+        method: "POST"
+    });
 
 }
 
 async function ledOff(){
 
-    await fetch("/led/off");
+    await fetch("/api/v1/led/off", {
+        method: "POST"
+    });
 
 }

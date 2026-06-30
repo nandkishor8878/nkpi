@@ -1,26 +1,14 @@
-import serial
-import time
+from aura.config.settings import Settings
+from aura.infrastructure.communication.serial_transport import SerialTransport
 
 class SerialService:
+    """Compatibility wrapper for older imports.
 
-    def __init__(self):
-        self.ser = serial.Serial("/dev/ttyUSB0", 115200, timeout=1)
-        time.sleep(2)
+    New code should depend on SerialTransport through CommandTransportPort.
+    """
 
-    def send(self, command):
+    def __init__(self, settings: Settings | None = None):
+        self._transport = SerialTransport(settings or Settings.from_env())
 
-        self.ser.write(f"{command}\n".encode())
-
-        time.sleep(0.1)
-
-        response = []
-
-        while self.ser.in_waiting:
-            response.append(
-                self.ser.readline().decode().strip()
-            )
-
-        return response
-
-
-serial_service = SerialService()
+    def send(self, command: str) -> list[str]:
+        return self._transport.send(command)
