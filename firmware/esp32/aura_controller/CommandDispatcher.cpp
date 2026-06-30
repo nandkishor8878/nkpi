@@ -2,8 +2,11 @@
 
 #include "config.h"
 
-CommandDispatcher::CommandDispatcher(ServoController& servoController)
-    : servoController(servoController) {}
+CommandDispatcher::CommandDispatcher(
+    ServoController& servoController,
+    UltrasonicSensor& ultrasonicSensor
+) : servoController(servoController),
+    ultrasonicSensor(ultrasonicSensor) {}
 
 String CommandDispatcher::handle(const String& command) {
     if (command == "PING") {
@@ -22,6 +25,10 @@ String CommandDispatcher::handle(const String& command) {
 
     if (command.startsWith("SERVO:")) {
         return handleServoCommand(command);
+    }
+
+    if (command == "READ:DISTANCE") {
+        return handleDistanceCommand();
     }
 
     return "ERROR:UNKNOWN_COMMAND";
@@ -56,6 +63,16 @@ String CommandDispatcher::handleServoCommand(const String& command) {
     return "OK";
 }
 
+String CommandDispatcher::handleDistanceCommand() {
+    float distanceCm = 0.0;
+
+    if (!ultrasonicSensor.readDistanceCm(distanceCm)) {
+        return "ERROR:DISTANCE_TIMEOUT";
+    }
+
+    return "DISTANCE_CM:" + String(distanceCm, 1);
+}
+
 bool CommandDispatcher::parseUnsignedByte(const String& value, uint8_t& result) const {
     if (value.length() == 0) {
         return false;
@@ -75,4 +92,3 @@ bool CommandDispatcher::parseUnsignedByte(const String& value, uint8_t& result) 
     result = static_cast<uint8_t>(parsedValue);
     return true;
 }
-

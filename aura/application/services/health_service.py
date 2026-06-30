@@ -7,15 +7,26 @@ class HealthService:
         self._transport = transport
 
     def get_health(self) -> dict:
-        esp32_response = self._transport.send(Esp32Protocol.PING)
+        esp32_response = []
+        esp32_status = "ok"
+        esp32_error = None
+
+        try:
+            esp32_response = self._transport.send(Esp32Protocol.PING)
+            if "PONG" not in esp32_response:
+                esp32_status = "unknown"
+        except Exception as exc:
+            esp32_status = "offline"
+            esp32_error = str(exc)
+
         return {
-            "status": "ok",
+            "status": "ok" if esp32_status == "ok" else "degraded",
             "components": {
                 "api": {"status": "ok"},
                 "esp32": {
-                    "status": "ok" if "PONG" in esp32_response else "unknown",
+                    "status": esp32_status,
                     "response": esp32_response,
+                    "error": esp32_error,
                 },
             },
         }
-

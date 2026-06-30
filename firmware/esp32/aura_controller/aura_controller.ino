@@ -3,10 +3,12 @@
 
 #include "CommandDispatcher.h"
 #include "ServoController.h"
+#include "UltrasonicSensor.h"
 #include "config.h"
 
 ServoController servoController;
-CommandDispatcher commandDispatcher(servoController);
+UltrasonicSensor ultrasonicSensor;
+CommandDispatcher commandDispatcher(servoController, ultrasonicSensor);
 
 void setup() {
     pinMode(STATUS_LED_PIN, OUTPUT);
@@ -16,6 +18,7 @@ void setup() {
     Wire.begin();
 
     servoController.begin();
+    ultrasonicSensor.begin();
     Serial.println("AURA_ESP32_READY");
 }
 
@@ -33,4 +36,3 @@ void loop() {
 
     Serial.println(commandDispatcher.handle(command));
 }
-

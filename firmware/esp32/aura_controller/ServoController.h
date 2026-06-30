@@ -11,7 +11,7 @@ public:
     bool setAngle(uint8_t channel, uint8_t angle);
 
 private:
-    Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver(PCA9685_I2C_ADDRESS);
+    Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver(AURA_PCA9685_I2C_ADDRESS);
 
     uint16_t angleToPulse(uint8_t angle) const;
     uint16_t pulseToTicks(uint16_t pulseMicros) const;

@@ -19,6 +19,8 @@ def set_servo_angle(servo_id: int):
         response = container.robot_control_service.set_servo_angle(servo_id, angle)
     except ValueError as exc:
         return jsonify({"status": "error", "error": str(exc)}), 400
+    except Exception as exc:
+        return jsonify({"status": "error", "error": str(exc)}), 503
 
     return jsonify(
         {

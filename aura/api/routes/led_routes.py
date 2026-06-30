@@ -9,13 +9,20 @@ led_bp = Blueprint("led", __name__, url_prefix="/api/v1")
 @led_bp.post("/led/on")
 def led_on():
     container = get_container()
-    response = container.robot_control_service.turn_led_on()
+    try:
+        response = container.robot_control_service.turn_led_on()
+    except Exception as exc:
+        return jsonify({"status": "error", "error": str(exc)}), 503
+
     return jsonify({"status": "success", "response": response})
 
 
 @led_bp.post("/led/off")
 def led_off():
     container = get_container()
-    response = container.robot_control_service.turn_led_off()
-    return jsonify({"status": "success", "response": response})
+    try:
+        response = container.robot_control_service.turn_led_off()
+    except Exception as exc:
+        return jsonify({"status": "error", "error": str(exc)}), 503
 
+    return jsonify({"status": "success", "response": response})

@@ -2,55 +2,98 @@
 <html>
 
 <head>
-
     <title>Smart Reception Assistant</title>
-
-    <link rel="stylesheet"
-          href="/static/css/style.css">
-
+    <link rel="stylesheet" href="/static/css/style.css">
 </head>
 
 <body>
 
-<div class="container">
+<main class="shell">
+    <section class="header">
+        <div>
+            <h1>Smart Reception Assistant</h1>
+            <p id="connection-message">Connecting to robot...</p>
+        </div>
+        <span id="system-status" class="status-pill">Unknown</span>
+    </section>
 
-    <h1>Smart Reception Assistant</h1>
+    <section class="dashboard">
+        <div class="camera-panel">
+            <img src="/api/v1/camera/stream" alt="Live camera stream">
+        </div>
 
-    <div class="camera">
+        <aside class="side-panel">
+            <section class="panel">
+                <h2>Status</h2>
+                <dl class="status-grid">
+                    <div>
+                        <dt>Mode</dt>
+                        <dd id="robot-mode">--</dd>
+                    </div>
+                    <div>
+                        <dt>Uptime</dt>
+                        <dd id="robot-uptime">--</dd>
+                    </div>
+                    <div>
+                        <dt>ESP32</dt>
+                        <dd id="esp32-status">--</dd>
+                    </div>
+                    <div>
+                        <dt>Camera</dt>
+                        <dd id="camera-status">--</dd>
+                    </div>
+                    <div>
+                        <dt>LED</dt>
+                        <dd id="led-status">--</dd>
+                    </div>
+                    <div>
+                        <dt>Servo 0</dt>
+                        <dd id="servo-0-status">--</dd>
+                    </div>
+                    <div>
+                        <dt>Distance</dt>
+                        <dd id="distance-status">--</dd>
+                    </div>
+                    <div>
+                        <dt>Visitor</dt>
+                        <dd id="visitor-status">--</dd>
+                    </div>
+                </dl>
+            </section>
 
-        <img src="/api/v1/camera/stream">
+            <section class="panel">
+                <h2>Controls</h2>
+                <div class="control-group">
+                    <span>LED</span>
+                    <div class="button-row">
+                        <button type="button" data-action="led-on">On</button>
+                        <button type="button" data-action="led-off">Off</button>
+                    </div>
+                </div>
 
-    </div>
+                <div class="control-group">
+                    <span>Servo 0</span>
+                    <div class="button-row">
+                        <button type="button" data-servo-angle="0">0</button>
+                        <button type="button" data-servo-angle="45">45</button>
+                        <button type="button" data-servo-angle="90">90</button>
+                        <button type="button" data-servo-angle="135">135</button>
+                        <button type="button" data-servo-angle="180">180</button>
+                    </div>
+                </div>
 
-    <div class="status">
+                <div class="control-group">
+                    <span>Distance</span>
+                    <div class="button-row">
+                        <button type="button" data-action="read-distance">Read</button>
+                    </div>
+                </div>
 
-        <h2>Status</h2>
-
-        <p>ESP32 : Connected</p>
-
-        <p>Camera : Running</p>
-
-        <p>Visitor : None</p>
-
-        <p>Distance : --</p>
-
-        <p>Servo : --</p>
-
-    </div>
-
-    <div class="buttons">
-
-        <button onclick="ledOn()">
-            LED ON
-        </button>
-
-        <button onclick="ledOff()">
-            LED OFF
-        </button>
-
-    </div>
-
-</div>
+                <p id="command-message" class="command-message">Ready</p>
+            </section>
+        </aside>
+    </section>
+</main>
 
 <script src="/static/js/app.js"></script>
 

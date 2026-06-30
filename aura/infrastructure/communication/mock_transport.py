@@ -13,6 +13,8 @@ class MockTransport:
             return ["OK"]
         if command.startswith("SERVO:"):
             return ["OK"]
+        if command == Esp32Protocol.READ_DISTANCE:
+            return ["DISTANCE_CM:42.7"]
         return ["UNKNOWN_COMMAND"]
 
     def close(self) -> None:

@@ -23,9 +23,11 @@ Project Aura is organized as a robotics platform, not a single Flask app.
 - `GET /api/v1/camera/stream`
 - `GET /video` for backward-compatible camera streaming.
 - `GET /api/v1/health`
+- `GET /api/v1/status`
 - `POST /api/v1/led/on`
 - `POST /api/v1/led/off`
 - `POST /api/v1/servos/{servo_id}/angle` with JSON body `{"angle": 90}`
+- `GET /api/v1/sensors/distance`
 
 ## Next Expansion Points
 
@@ -47,3 +49,29 @@ The current ESP32 command is `SERVO:<servo_id>:<angle>`, kept behind
 The ESP32 firmware side mirrors this with:
 
 `aura_controller.ino -> CommandDispatcher -> ServoController -> PCA9685`
+
+## Operator Console State
+
+The browser dashboard polls `GET /api/v1/status` and renders the returned robot
+state. Browser controls do not contain robot logic; they call APIs and refresh
+status after commands complete.
+
+Current status flow:
+
+`status_routes -> RobotStatusService -> RobotStateStore + HealthService`
+
+Command services update `RobotStateStore` after successful hardware responses.
+Future telemetry from sensors can update the same store without changing the
+dashboard contract.
+
+## Distance Sensor
+
+Distance reads flow through:
+
+`sensor_routes -> SensorService -> UltrasonicSensorClient -> CommandTransportPort`
+
+The Raspberry Pi sends `READ:DISTANCE` to the ESP32. The ESP32 responds with
+`DISTANCE_CM:<value>` or `ERROR:DISTANCE_TIMEOUT`.
+
+Successful reads update `RobotStateStore`, so the dashboard can render distance
+through `GET /api/v1/status`.
