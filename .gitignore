@@ -1,0 +1,47 @@
+# Python
+__pycache__/
+*.py[cod]
+*.so
+
+# Virtual Environment
+.venv/
+venv/
+env/
+
+# Environment Variables
+.env
+
+# VS Code
+.vscode/
+
+# JetBrains
+.idea/
+
+# macOS
+.DS_Store
+
+# Raspberry Pi
+*.log
+
+# Camera Output
+*.jpg
+*.jpeg
+*.png
+*.mp4
+*.h264
+
+# Temporary files
+tmp/
+temp/
+
+# Python cache
+.pytest_cache/
+.mypy_cache/
+
+# Build
+build/
+dist/
+*.egg-info/
+
+# OS
+Thumbs.db
