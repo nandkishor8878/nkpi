@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <title>Smart Reception Assistant</title>
+
+    <link rel="stylesheet"
+          href="/static/css/style.css">
+
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>🤖 Smart Reception Assistant</h1>
+
+    <div class="camera">
+
+        <img src="/video">
+
+    </div>
+
+    <div class="status">
+
+        <h2>Status</h2>
+
+        <p>ESP32 : Connected</p>
+
+        <p>Camera : Running</p>
+
+        <p>Visitor : None</p>
+
+        <p>Distance : --</p>
+
+        <p>Servo : --</p>
+
+    </div>
+
+    <div class="buttons">
+
+        <button onclick="ledOn()">
+            LED ON
+        </button>
+
+        <button onclick="ledOff()">
+            LED OFF
+        </button>
+
+    </div>
+
+</div>
+
+<script src="/static/js/app.js"></script>
+
+</body>
+
+</html>
