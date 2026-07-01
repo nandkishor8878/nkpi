@@ -18,6 +18,7 @@ class RobotState:
     distance_cm: float | None = None
     proximity_detected: bool | None = None
     imu: dict[str, Any] | None = None
+    vision: dict[str, Any] | None = None
     visitor: str | None = None
     mode: str = "reception"
     command_count: int = 0

@@ -36,6 +36,13 @@ class RobotStateStore:
         self._state.imu = imu
         self.record_command("IMU read")
 
+    def set_vision(self, vision: dict) -> None:
+        self._state.vision = vision
+        face_count = vision.get("face_count", 0)
+        qr_count = vision.get("qr_count", 0)
+        self._state.visitor = "Detected" if face_count else None
+        self.record_command(f"Vision scan faces={face_count} qr={qr_count}")
+
     def record_command(self, message: str) -> None:
         self._state.command_count += 1
         self._state.last_command = message

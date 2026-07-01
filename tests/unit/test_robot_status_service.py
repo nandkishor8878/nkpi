@@ -21,6 +21,7 @@ class RobotStatusServiceTests(unittest.TestCase):
         state_store.set_servo_angle(0, 90)
         state_store.set_proximity(True, 42.7)
         state_store.set_imu({"accel_x": 0.0, "accel_y": 0.0, "accel_z": 1.0})
+        state_store.set_vision({"face_count": 1, "qr_count": 0})
         service = RobotStatusService(state_store, FakeHealthService())
 
         status = service.get_status()
@@ -34,9 +35,11 @@ class RobotStatusServiceTests(unittest.TestCase):
         self.assertEqual(status["sensors"]["distance_cm"], 42.7)
         self.assertTrue(status["sensors"]["proximity_detected"])
         self.assertEqual(status["sensors"]["imu"]["accel_z"], 1.0)
+        self.assertEqual(status["vision"]["face_count"], 1)
+        self.assertEqual(status["visitor"], "Detected")
         self.assertGreaterEqual(status["diagnostics"]["command_count"], 4)
         self.assertEqual(status["diagnostics"]["error_count"], 0)
-        self.assertEqual(status["diagnostics"]["last_command"], "IMU read")
+        self.assertEqual(status["diagnostics"]["last_command"], "Vision scan faces=1 qr=0")
         self.assertGreaterEqual(len(status["diagnostics"]["recent_events"]), 1)
 
 

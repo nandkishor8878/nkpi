@@ -9,6 +9,7 @@ from aura.api.routes.led_routes import led_bp
 from aura.api.routes.servo_routes import servo_bp
 from aura.api.routes.sensor_routes import sensor_bp
 from aura.api.routes.status_routes import status_bp
+from aura.api.routes.vision_routes import vision_bp
 from aura.api.routes.web_routes import web_bp
 from aura.application.services.camera_stream_service import CameraStreamService
 from aura.application.services.health_service import HealthService
@@ -17,6 +18,7 @@ from aura.application.services.robot_state_store import RobotStateStore
 from aura.application.services.robot_status_service import RobotStatusService
 from aura.application.services.servo_service import ServoService
 from aura.application.services.sensor_service import SensorService
+from aura.application.services.vision_service import VisionService
 from aura.config.settings import Settings
 from aura.infrastructure.actuators.mock_servo_controller import MockServoController
 from aura.infrastructure.actuators.pca9685_servo_controller import Pca9685ServoController
@@ -51,6 +53,7 @@ def create_app(settings: Settings | None = None) -> Flask:
     app.register_blueprint(led_bp)
     app.register_blueprint(servo_bp)
     app.register_blueprint(sensor_bp)
+    app.register_blueprint(vision_bp)
 
     return app
 
@@ -63,6 +66,7 @@ def _build_container(settings: Settings) -> AppContainer:
     imu_sensor = ImuSensorClient(transport)
     state_store = RobotStateStore()
     health_service = HealthService(transport)
+    camera_stream_service = CameraStreamService(camera)
     robot_control_service = RobotControlService(
         transport,
         servo_controller,
@@ -74,12 +78,13 @@ def _build_container(settings: Settings) -> AppContainer:
         transport=transport,
         servo_controller=servo_controller,
         state_store=state_store,
-        camera_stream_service=CameraStreamService(camera),
+        camera_stream_service=camera_stream_service,
         health_service=health_service,
         robot_control_service=robot_control_service,
         servo_service=servo_service,
         robot_status_service=RobotStatusService(state_store, health_service),
         sensor_service=SensorService(ultrasonic_sensor, imu_sensor, state_store, settings),
+        vision_service=VisionService(camera_stream_service, state_store),
     )
 
 

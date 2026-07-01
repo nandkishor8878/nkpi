@@ -34,6 +34,7 @@ Project Aura is organized as a robotics platform, not a single Flask app.
 - `GET /api/v1/sensors/proximity`
 - `GET /api/v1/sensors/imu`
 - `GET /api/v1/sensors/imu/status`
+- `GET /api/v1/vision/analyze`
 
 ## Next Expansion Points
 
@@ -115,3 +116,18 @@ IMU reads use the same route/service/client structure. The Raspberry Pi sends
 
 `GET /api/v1/sensors/imu/status` sends `READ:IMU_STATUS` so wiring/address
 issues can be diagnosed without guessing.
+
+## Vision
+
+Vision scans flow through:
+
+`vision_routes -> VisionService -> CameraStreamService -> CameraPort`
+
+The first vision phase supports:
+
+- face detection count and boxes using OpenCV Haar cascade
+- QR code decoding using OpenCV `QRCodeDetector`
+
+Successful scans update `RobotStateStore`, so `GET /api/v1/status` includes
+the latest vision snapshot and visitor state. Future object detection models can
+be added behind `VisionService` without changing dashboard/API consumers.

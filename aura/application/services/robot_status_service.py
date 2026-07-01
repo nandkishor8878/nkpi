@@ -39,6 +39,7 @@ class RobotStatusService:
                 "proximity_detected": state.proximity_detected,
                 "imu": state.imu,
             },
+            "vision": state.vision,
             "visitor": state.visitor,
             "diagnostics": {
                 "command_count": state.command_count,

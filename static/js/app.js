@@ -10,6 +10,7 @@ const statusFields = {
     distanceStatus: document.querySelector("#distance-status"),
     proximityStatus: document.querySelector("#proximity-status"),
     visitorStatus: document.querySelector("#visitor-status"),
+    visionStatus: document.querySelector("#vision-status"),
     imuStatus: document.querySelector("#imu-status"),
     imuLinkStatus: document.querySelector("#imu-link-status"),
     pollCount: document.querySelector("#poll-count"),
@@ -63,6 +64,7 @@ function renderStatus(status) {
     statusFields.distanceStatus.textContent = formatDistance(status.sensors.distance_cm);
     statusFields.proximityStatus.textContent = formatProximity(status.sensors.proximity_detected);
     statusFields.visitorStatus.textContent = status.visitor || "None";
+    statusFields.visionStatus.textContent = formatVision(status.vision);
     statusFields.imuStatus.textContent = formatImu(status.sensors.imu);
     renderDiagnostics(status.diagnostics);
 }
@@ -116,6 +118,14 @@ function formatProximity(detected) {
     }
 
     return detected ? "Detected" : "Clear";
+}
+
+function formatVision(vision) {
+    if (!vision) {
+        return "--";
+    }
+
+    return `${vision.face_count || 0} face, ${vision.qr_count || 0} QR`;
 }
 
 function formatImu(imu) {
@@ -229,6 +239,10 @@ async function readProximity() {
     await runCommand("Proximity read", () => requestJson("/api/v1/sensors/proximity"));
 }
 
+async function scanVision() {
+    await runCommand("Vision scan", () => requestJson("/api/v1/vision/analyze"));
+}
+
 async function readImu() {
     await runCommand("IMU read", () => requestJson("/api/v1/sensors/imu"));
 }
@@ -248,6 +262,7 @@ document.querySelector("[data-action='led-off']").addEventListener("click", ledO
 document.querySelector("[data-action='servo-stop']").addEventListener("click", stopServo);
 document.querySelector("[data-action='read-distance']").addEventListener("click", readDistance);
 document.querySelector("[data-action='read-proximity']").addEventListener("click", readProximity);
+document.querySelector("[data-action='vision-scan']").addEventListener("click", scanVision);
 document.querySelector("[data-action='read-imu']").addEventListener("click", readImu);
 document.querySelector("[data-action='read-imu-status']").addEventListener("click", readImuStatus);
 
