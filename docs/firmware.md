@@ -70,6 +70,18 @@ Default I2C address is `0x68`.
 
 The Raspberry Pi API endpoint:
 
+`POST /api/v1/servo`
+
+with:
+
+```json
+{"channel": 0, "angle": 90}
+```
+
+directly controls the PCA9685 when `AURA_SERVO_DRIVER=pca9685`.
+
+The compatibility endpoint:
+
 `POST /api/v1/servos/{servo_id}/angle`
 
 with:
@@ -85,6 +97,9 @@ SERVO:<servo_id>:<angle>
 ```
 
 The firmware accepts PCA9685 channels `0` through `15` and servo angles `0` through `180`.
+
+For the current hardware setup, PCA9685 is connected to Raspberry Pi I2C and
+detected at address `0x40`, so the direct Pi driver is preferred.
 
 ## Calibration
 

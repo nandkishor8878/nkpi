@@ -15,8 +15,11 @@ from aura.application.services.health_service import HealthService
 from aura.application.services.robot_control_service import RobotControlService
 from aura.application.services.robot_state_store import RobotStateStore
 from aura.application.services.robot_status_service import RobotStatusService
+from aura.application.services.servo_service import ServoService
 from aura.application.services.sensor_service import SensorService
 from aura.config.settings import Settings
+from aura.infrastructure.actuators.mock_servo_controller import MockServoController
+from aura.infrastructure.actuators.pca9685_servo_controller import Pca9685ServoController
 from aura.infrastructure.actuators.servo_controller import ServoController
 from aura.infrastructure.camera.mock_camera import MockCamera
 from aura.infrastructure.camera.pi_camera import PiCamera
@@ -55,7 +58,7 @@ def create_app(settings: Settings | None = None) -> Flask:
 def _build_container(settings: Settings) -> AppContainer:
     camera = _build_camera(settings)
     transport = _build_transport(settings)
-    servo_controller = ServoController(transport, settings)
+    servo_controller = _build_servo_controller(settings, transport)
     ultrasonic_sensor = UltrasonicSensorClient(transport)
     imu_sensor = ImuSensorClient(transport)
     state_store = RobotStateStore()
@@ -65,6 +68,7 @@ def _build_container(settings: Settings) -> AppContainer:
         servo_controller,
         state_store,
     )
+    servo_service = ServoService(servo_controller, state_store, settings)
     return AppContainer(
         camera=camera,
         transport=transport,
@@ -73,6 +77,7 @@ def _build_container(settings: Settings) -> AppContainer:
         camera_stream_service=CameraStreamService(camera),
         health_service=health_service,
         robot_control_service=robot_control_service,
+        servo_service=servo_service,
         robot_status_service=RobotStatusService(state_store, health_service),
         sensor_service=SensorService(ultrasonic_sensor, imu_sensor, state_store),
     )
@@ -88,3 +93,13 @@ def _build_transport(settings: Settings):
     if settings.serial_transport == "mock":
         return MockTransport()
     return SerialTransport(settings)
+
+
+def _build_servo_controller(settings: Settings, transport):
+    if settings.testing or settings.servo_driver == "mock":
+        return MockServoController(settings)
+    if settings.servo_driver == "serial":
+        return ServoController(transport, settings)
+    if settings.servo_driver == "pca9685":
+        return Pca9685ServoController(settings)
+    raise ValueError(f"Unsupported servo driver: {settings.servo_driver}")

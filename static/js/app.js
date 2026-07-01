@@ -113,14 +113,24 @@ async function setServoAngle(angle) {
     await runCommand(
         `Servo 0 to ${angle} deg`,
         () => requestJson(
-            "/api/v1/servos/0/angle",
+            "/api/v1/servo",
             {
                 method: "POST",
                 headers: {"Content-Type": "application/json"},
-                body: JSON.stringify({angle})
+                body: JSON.stringify({channel: 0, angle})
             }
         )
     );
+}
+
+function servoPositionToAngle(position) {
+    const positions = {
+        left: 45,
+        center: 90,
+        right: 135
+    };
+
+    return positions[position];
 }
 
 async function readDistance() {
@@ -139,6 +149,12 @@ document.querySelector("[data-action='read-imu']").addEventListener("click", rea
 document.querySelectorAll("[data-servo-angle]").forEach((button) => {
     button.addEventListener("click", () => {
         setServoAngle(Number(button.dataset.servoAngle));
+    });
+});
+
+document.querySelectorAll("[data-servo-position]").forEach((button) => {
+    button.addEventListener("click", () => {
+        setServoAngle(servoPositionToAngle(button.dataset.servoPosition));
     });
 });
 

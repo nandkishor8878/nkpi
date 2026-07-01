@@ -26,7 +26,21 @@ class ServoRouteTests(unittest.TestCase):
         self.assertEqual(response.get_json()["response"], ["OK"])
 
         container = self.app.extensions["aura"]
-        self.assertEqual(container.transport.commands, ["SERVO:0:90"])
+        self.assertEqual(container.state_store.snapshot().servos[0], 90)
+
+    def test_set_servo_endpoint_accepts_channel_and_angle(self):
+        response = self.client.post(
+            "/api/v1/servo",
+            json={"channel": 0, "angle": 90, "smooth": False},
+        )
+
+        self.assertEqual(response.status_code, 200)
+        payload = response.get_json()
+        self.assertEqual(payload["channel"], 0)
+        self.assertEqual(payload["angle"], 90)
+
+        container = self.app.extensions["aura"]
+        self.assertEqual(container.state_store.snapshot().servos[0], 90)
 
     def test_set_servo_angle_rejects_missing_angle(self):
         response = self.client.post("/api/v1/servos/0/angle", json={})

@@ -26,6 +26,7 @@ Project Aura is organized as a robotics platform, not a single Flask app.
 - `GET /api/v1/status`
 - `POST /api/v1/led/on`
 - `POST /api/v1/led/off`
+- `POST /api/v1/servo` with JSON body `{"channel": 0, "angle": 90}`
 - `POST /api/v1/servos/{servo_id}/angle` with JSON body `{"angle": 90}`
 - `GET /api/v1/sensors/distance`
 - `GET /api/v1/sensors/imu`
@@ -41,11 +42,18 @@ Project Aura is organized as a robotics platform, not a single Flask app.
 
 Servo commands flow through:
 
-`servo_routes -> RobotControlService -> ServoController -> CommandTransportPort`
+`servo_routes -> ServoService -> ServoPort`
 
-The controller validates servo ids and angle limits before sending hardware commands.
-The current ESP32 command is `SERVO:<servo_id>:<angle>`, kept behind
-`Esp32Protocol` so the protocol can evolve without changing HTTP routes.
+The default hardware driver is Raspberry Pi direct PCA9685 control via
+`adafruit_servokit`. Use `AURA_SERVO_DRIVER=pca9685` when the PCA9685 is on the
+Pi I2C bus at `0x40`, which matches the current hardware setup.
+
+The older ESP32 serial driver remains available with `AURA_SERVO_DRIVER=serial`.
+It sends `SERVO:<servo_id>:<angle>` through `CommandTransportPort` for setups
+where the PCA9685 is wired to ESP32 instead of the Pi.
+
+`ServoService` validates angle limits, supports smooth movement, updates robot
+state after successful movement, and keeps Flask routes thin.
 
 The ESP32 firmware side mirrors this with:
 
