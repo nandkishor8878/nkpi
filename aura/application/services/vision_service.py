@@ -26,11 +26,14 @@ class VisionService:
         if frame is None:
             return self._empty_result("frame_decode_failed")
 
+        frame_height, frame_width = frame.shape[:2]
         faces = self._detect_faces(cv2, frame)
         qr_codes = self._detect_qr_codes(cv2, frame)
 
         return {
             "status": "ok",
+            "frame_width": int(frame_width),
+            "frame_height": int(frame_height),
             "face_count": len(faces),
             "faces": faces,
             "qr_count": len(qr_codes),
@@ -85,6 +88,8 @@ class VisionService:
     def _empty_result(self, status: str) -> dict:
         return {
             "status": status,
+            "frame_width": None,
+            "frame_height": None,
             "face_count": 0,
             "faces": [],
             "qr_count": 0,

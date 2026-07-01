@@ -33,6 +33,11 @@ class Settings:
     pca9685_channels: int = 16
     pca9685_i2c_address: int = 0x40
     proximity_threshold_cm: float = 50.0
+    face_tracking_servo_channel: int = 0
+    face_tracking_dead_zone_px: int = 50
+    face_tracking_step_degrees: int = 4
+    face_tracking_invert_servo: bool = False
+    face_tracking_smooth: bool = True
     testing: bool = False
 
     @classmethod
@@ -64,5 +69,18 @@ class Settings:
             pca9685_channels=int(os.getenv("AURA_PCA9685_CHANNELS", "16")),
             pca9685_i2c_address=int(os.getenv("AURA_PCA9685_I2C_ADDRESS", "0x40"), 0),
             proximity_threshold_cm=float(os.getenv("AURA_PROXIMITY_THRESHOLD_CM", "50")),
+            face_tracking_servo_channel=int(
+                os.getenv("AURA_FACE_TRACKING_SERVO_CHANNEL", "0")
+            ),
+            face_tracking_dead_zone_px=int(
+                os.getenv("AURA_FACE_TRACKING_DEAD_ZONE_PX", "50")
+            ),
+            face_tracking_step_degrees=int(
+                os.getenv("AURA_FACE_TRACKING_STEP_DEGREES", "4")
+            ),
+            face_tracking_invert_servo=_env_bool(
+                "AURA_FACE_TRACKING_INVERT_SERVO", False
+            ),
+            face_tracking_smooth=_env_bool("AURA_FACE_TRACKING_SMOOTH", True),
             testing=_env_bool("AURA_TESTING", False),
         )

@@ -103,3 +103,27 @@ After editing `config/env/production.env`:
 ```bash
 sudo systemctl restart aura.service
 ```
+
+## Face Tracking Tuning
+
+Face tracking uses the camera frame and the configured pan servo channel:
+
+```text
+AURA_FACE_TRACKING_SERVO_CHANNEL=0
+AURA_FACE_TRACKING_DEAD_ZONE_PX=50
+AURA_FACE_TRACKING_STEP_DEGREES=4
+AURA_FACE_TRACKING_INVERT_SERVO=false
+AURA_FACE_TRACKING_SMOOTH=true
+```
+
+If the camera turns away from a face instead of toward it, change:
+
+```text
+AURA_FACE_TRACKING_INVERT_SERVO=true
+```
+
+Then restart:
+
+```bash
+sudo systemctl restart aura.service
+```

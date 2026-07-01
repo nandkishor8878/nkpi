@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 
 from aura.application.services.camera_stream_service import CameraStreamService
+from aura.application.services.face_tracking_service import FaceTrackingService
 from aura.application.services.health_service import HealthService
 from aura.application.services.robot_control_service import RobotControlService
 from aura.application.services.robot_state_store import RobotStateStore
@@ -26,6 +27,7 @@ class AppContainer:
     robot_status_service: RobotStatusService
     sensor_service: SensorService
     vision_service: VisionService
+    face_tracking_service: FaceTrackingService
 
     def close(self) -> None:
         self.camera.close()

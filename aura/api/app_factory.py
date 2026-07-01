@@ -4,6 +4,7 @@ from flask import Flask
 
 from aura.api.dependencies import AppContainer
 from aura.api.routes.camera_routes import camera_bp
+from aura.api.routes.face_tracking_routes import face_tracking_bp
 from aura.api.routes.health_routes import health_bp
 from aura.api.routes.led_routes import led_bp
 from aura.api.routes.servo_routes import servo_bp
@@ -12,6 +13,7 @@ from aura.api.routes.status_routes import status_bp
 from aura.api.routes.vision_routes import vision_bp
 from aura.api.routes.web_routes import web_bp
 from aura.application.services.camera_stream_service import CameraStreamService
+from aura.application.services.face_tracking_service import FaceTrackingService
 from aura.application.services.health_service import HealthService
 from aura.application.services.robot_control_service import RobotControlService
 from aura.application.services.robot_state_store import RobotStateStore
@@ -54,6 +56,7 @@ def create_app(settings: Settings | None = None) -> Flask:
     app.register_blueprint(servo_bp)
     app.register_blueprint(sensor_bp)
     app.register_blueprint(vision_bp)
+    app.register_blueprint(face_tracking_bp)
 
     return app
 
@@ -73,6 +76,13 @@ def _build_container(settings: Settings) -> AppContainer:
         state_store,
     )
     servo_service = ServoService(servo_controller, state_store, settings)
+    vision_service = VisionService(camera_stream_service, state_store)
+    face_tracking_service = FaceTrackingService(
+        vision_service,
+        servo_service,
+        state_store,
+        settings,
+    )
     return AppContainer(
         camera=camera,
         transport=transport,
@@ -84,7 +94,8 @@ def _build_container(settings: Settings) -> AppContainer:
         servo_service=servo_service,
         robot_status_service=RobotStatusService(state_store, health_service),
         sensor_service=SensorService(ultrasonic_sensor, imu_sensor, state_store, settings),
-        vision_service=VisionService(camera_stream_service, state_store),
+        vision_service=vision_service,
+        face_tracking_service=face_tracking_service,
     )
 
 

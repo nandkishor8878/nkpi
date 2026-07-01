@@ -40,6 +40,7 @@ class RobotStatusService:
                 "imu": state.imu,
             },
             "vision": state.vision,
+            "face_tracking": state.face_tracking,
             "visitor": state.visitor,
             "diagnostics": {
                 "command_count": state.command_count,

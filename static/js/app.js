@@ -11,6 +11,7 @@ const statusFields = {
     proximityStatus: document.querySelector("#proximity-status"),
     visitorStatus: document.querySelector("#visitor-status"),
     visionStatus: document.querySelector("#vision-status"),
+    faceTrackingStatus: document.querySelector("#face-tracking-status"),
     imuStatus: document.querySelector("#imu-status"),
     imuLinkStatus: document.querySelector("#imu-link-status"),
     pollCount: document.querySelector("#poll-count"),
@@ -28,6 +29,8 @@ const dashboardMetrics = {
     pollCount: 0,
     pollErrorCount: 0
 };
+
+let faceTrackingTimer = null;
 
 async function requestJson(url, options = {}) {
     const response = await fetch(url, options);
@@ -65,6 +68,7 @@ function renderStatus(status) {
     statusFields.proximityStatus.textContent = formatProximity(status.sensors.proximity_detected);
     statusFields.visitorStatus.textContent = status.visitor || "None";
     statusFields.visionStatus.textContent = formatVision(status.vision);
+    statusFields.faceTrackingStatus.textContent = formatFaceTracking(status.face_tracking);
     statusFields.imuStatus.textContent = formatImu(status.sensors.imu);
     renderDiagnostics(status.diagnostics);
 }
@@ -126,6 +130,18 @@ function formatVision(vision) {
     }
 
     return `${vision.face_count || 0} face, ${vision.qr_count || 0} QR`;
+}
+
+function formatFaceTracking(tracking) {
+    if (!tracking) {
+        return "--";
+    }
+
+    if (typeof tracking.error_px === "number") {
+        return `${tracking.status}, ${tracking.error_px}px`;
+    }
+
+    return tracking.status || "--";
 }
 
 function formatImu(imu) {
@@ -243,6 +259,33 @@ async function scanVision() {
     await runCommand("Vision scan", () => requestJson("/api/v1/vision/analyze"));
 }
 
+async function trackFace() {
+    await runCommand(
+        "Face track",
+        () => requestJson(
+            "/api/v1/face-tracking/track",
+            {method: "POST"}
+        )
+    );
+}
+
+function toggleFaceTracking() {
+    const button = document.querySelector("[data-action='face-track-auto']");
+
+    if (faceTrackingTimer) {
+        clearInterval(faceTrackingTimer);
+        faceTrackingTimer = null;
+        button.textContent = "Auto";
+        statusFields.commandMessage.textContent = "Face auto tracking stopped";
+        return;
+    }
+
+    button.textContent = "Stop Auto";
+    statusFields.commandMessage.textContent = "Face auto tracking running";
+    trackFace();
+    faceTrackingTimer = setInterval(trackFace, 900);
+}
+
 async function readImu() {
     await runCommand("IMU read", () => requestJson("/api/v1/sensors/imu"));
 }
@@ -263,6 +306,8 @@ document.querySelector("[data-action='servo-stop']").addEventListener("click", s
 document.querySelector("[data-action='read-distance']").addEventListener("click", readDistance);
 document.querySelector("[data-action='read-proximity']").addEventListener("click", readProximity);
 document.querySelector("[data-action='vision-scan']").addEventListener("click", scanVision);
+document.querySelector("[data-action='face-track']").addEventListener("click", trackFace);
+document.querySelector("[data-action='face-track-auto']").addEventListener("click", toggleFaceTracking);
 document.querySelector("[data-action='read-imu']").addEventListener("click", readImu);
 document.querySelector("[data-action='read-imu-status']").addEventListener("click", readImuStatus);
 

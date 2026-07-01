@@ -35,11 +35,12 @@ Project Aura is organized as a robotics platform, not a single Flask app.
 - `GET /api/v1/sensors/imu`
 - `GET /api/v1/sensors/imu/status`
 - `GET /api/v1/vision/analyze`
+- `GET /api/v1/face-tracking/status`
+- `POST /api/v1/face-tracking/track`
 
 ## Next Expansion Points
 
-- Add servo control as an actuator adapter and application service method.
-- Add ultrasonic and IMU access as sensor adapters.
+- Add object/person detection models behind `VisionService`.
 - Promote the ESP32 protocol from plain command strings to framed messages with request ids.
 - Add OpenAPI documentation once the first stable API set is complete.
 
@@ -131,3 +132,26 @@ The first vision phase supports:
 Successful scans update `RobotStateStore`, so `GET /api/v1/status` includes
 the latest vision snapshot and visitor state. Future object detection models can
 be added behind `VisionService` without changing dashboard/API consumers.
+
+## Face Tracking
+
+Face tracking flows through:
+
+`face_tracking_routes -> FaceTrackingService -> VisionService + ServoService`
+
+`FaceTrackingService` chooses the largest detected face, compares its horizontal
+center to the frame center, and moves the configured pan servo by a small
+configurable step only when the face is outside the dead zone. This keeps the
+Flask route thin and keeps camera analysis separate from actuator control.
+
+Important tuning settings:
+
+- `AURA_FACE_TRACKING_SERVO_CHANNEL`
+- `AURA_FACE_TRACKING_DEAD_ZONE_PX`
+- `AURA_FACE_TRACKING_STEP_DEGREES`
+- `AURA_FACE_TRACKING_INVERT_SERVO`
+- `AURA_FACE_TRACKING_SMOOTH`
+
+The dashboard supports a single Track command and browser-driven Auto tracking.
+Auto tracking calls the same one-shot API on a timer, so stopping it from the UI
+does not require killing a backend worker.

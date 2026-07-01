@@ -43,6 +43,10 @@ class RobotStateStore:
         self._state.visitor = "Detected" if face_count else None
         self.record_command(f"Vision scan faces={face_count} qr={qr_count}")
 
+    def set_face_tracking(self, tracking: dict) -> None:
+        self._state.face_tracking = tracking
+        self.record_command(f"Face tracking {tracking.get('status', 'unknown')}")
+
     def record_command(self, message: str) -> None:
         self._state.command_count += 1
         self._state.last_command = message

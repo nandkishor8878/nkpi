@@ -14,11 +14,12 @@ class DiagnosticEvent:
 class RobotState:
     started_at: float = field(default_factory=time.monotonic)
     led: str = "unknown"
-    servos: dict[int, int] = field(default_factory=dict)
+    servos: dict[int, int | None] = field(default_factory=dict)
     distance_cm: float | None = None
     proximity_detected: bool | None = None
     imu: dict[str, Any] | None = None
     vision: dict[str, Any] | None = None
+    face_tracking: dict[str, Any] | None = None
     visitor: str | None = None
     mode: str = "reception"
     command_count: int = 0
