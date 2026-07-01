@@ -76,7 +76,7 @@ def _build_container(settings: Settings) -> AppContainer:
         state_store,
     )
     servo_service = ServoService(servo_controller, state_store, settings)
-    vision_service = VisionService(camera_stream_service, state_store)
+    vision_service = VisionService(camera_stream_service, state_store, settings)
     face_tracking_service = FaceTrackingService(
         vision_service,
         servo_service,

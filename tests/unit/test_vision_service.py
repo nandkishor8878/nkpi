@@ -32,5 +32,20 @@ class VisionServiceTests(unittest.TestCase):
         self.assertEqual(state_store.snapshot().vision["status"], "frame_decode_failed")
 
 
+class VisionFacePostProcessingTests(unittest.TestCase):
+    def test_dedupe_faces_keeps_largest_overlapping_box(self):
+        service = VisionService(CameraStreamService(FakeCamera()), RobotStateStore())
+
+        faces = service._dedupe_faces(
+            [
+                (10, 10, 100, 100),
+                (15, 15, 90, 90),
+                (240, 80, 80, 80),
+            ]
+        )
+
+        self.assertEqual(faces, [(10, 10, 100, 100), (240, 80, 80, 80)])
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -30,9 +30,14 @@ class Settings:
     servo_right_angle: int = 135
     servo_smooth_step_degrees: int = 2
     servo_smooth_step_delay_seconds: float = 0.02
+    servo_auto_release_after_move: bool = False
+    servo_release_delay_seconds: float = 0.35
     pca9685_channels: int = 16
     pca9685_i2c_address: int = 0x40
     proximity_threshold_cm: float = 50.0
+    vision_face_scale_factor: float = 1.05
+    vision_face_min_neighbors: int = 4
+    vision_face_min_size_px: int = 30
     face_tracking_servo_channel: int = 0
     face_tracking_dead_zone_px: int = 50
     face_tracking_step_degrees: int = 4
@@ -66,9 +71,22 @@ class Settings:
             servo_smooth_step_delay_seconds=float(
                 os.getenv("AURA_SERVO_SMOOTH_STEP_DELAY_SECONDS", "0.02")
             ),
+            servo_auto_release_after_move=_env_bool(
+                "AURA_SERVO_AUTO_RELEASE_AFTER_MOVE", False
+            ),
+            servo_release_delay_seconds=float(
+                os.getenv("AURA_SERVO_RELEASE_DELAY_SECONDS", "0.35")
+            ),
             pca9685_channels=int(os.getenv("AURA_PCA9685_CHANNELS", "16")),
             pca9685_i2c_address=int(os.getenv("AURA_PCA9685_I2C_ADDRESS", "0x40"), 0),
             proximity_threshold_cm=float(os.getenv("AURA_PROXIMITY_THRESHOLD_CM", "50")),
+            vision_face_scale_factor=float(
+                os.getenv("AURA_VISION_FACE_SCALE_FACTOR", "1.05")
+            ),
+            vision_face_min_neighbors=int(
+                os.getenv("AURA_VISION_FACE_MIN_NEIGHBORS", "4")
+            ),
+            vision_face_min_size_px=int(os.getenv("AURA_VISION_FACE_MIN_SIZE_PX", "30")),
             face_tracking_servo_channel=int(
                 os.getenv("AURA_FACE_TRACKING_SERVO_CHANNEL", "0")
             ),

@@ -61,6 +61,8 @@ AURA_SERVO_MAX_ANGLE=150
 AURA_SERVO_LEFT_ANGLE=60
 AURA_SERVO_CENTER_ANGLE=90
 AURA_SERVO_RIGHT_ANGLE=120
+AURA_SERVO_AUTO_RELEASE_AFTER_MOVE=true
+AURA_SERVO_RELEASE_DELAY_SECONDS=0.35
 ```
 
 Check the active calibration:
@@ -79,6 +81,18 @@ curl -X POST http://localhost:5000/api/v1/servo \
 
 If the servo hits its physical stop, reduce `AURA_SERVO_MIN_ANGLE` and
 `AURA_SERVO_MAX_ANGLE` in `config/env/production.env`, then restart the service.
+
+If the servo keeps rotating after an angle command, first confirm it is a
+positional MG90S and not a 360-degree continuous-rotation servo. The production
+profile releases PWM after each completed move:
+
+```text
+AURA_SERVO_AUTO_RELEASE_AFTER_MOVE=true
+AURA_SERVO_RELEASE_DELAY_SECONDS=0.35
+```
+
+Increase `AURA_SERVO_RELEASE_DELAY_SECONDS` if the positional servo does not get
+enough time to reach the target before PWM is released.
 
 ## Systemd Service
 
@@ -115,6 +129,17 @@ AURA_FACE_TRACKING_STEP_DEGREES=4
 AURA_FACE_TRACKING_INVERT_SERVO=false
 AURA_FACE_TRACKING_SMOOTH=true
 ```
+
+Face detection sensitivity is controlled by:
+
+```text
+AURA_VISION_FACE_SCALE_FACTOR=1.05
+AURA_VISION_FACE_MIN_NEIGHBORS=4
+AURA_VISION_FACE_MIN_SIZE_PX=30
+```
+
+If faces are still missed, lower `AURA_VISION_FACE_MIN_NEIGHBORS` to `3`. If
+false detections appear, raise it to `5` or `6`.
 
 If the camera turns away from a face instead of toward it, change:
 

@@ -65,6 +65,11 @@ state after successful movement, and keeps Flask routes thin.
 channel when using the direct Raspberry Pi driver. This is different from
 Center, which moves the servo to the configured center angle.
 
+For positional servos that jitter or continuous-rotation servos that keep
+spinning, production can enable `AURA_SERVO_AUTO_RELEASE_AFTER_MOVE=true`.
+That holds the final angle command briefly, then releases the PCA9685 PWM signal
+without forgetting the last commanded angle in robot state.
+
 The ESP32 firmware side mirrors this with:
 
 `aura_controller.ino -> CommandDispatcher -> ServoController -> PCA9685`
@@ -128,6 +133,10 @@ The first vision phase supports:
 
 - face detection count and boxes using OpenCV Haar cascade
 - QR code decoding using OpenCV `QRCodeDetector`
+
+Face detection applies grayscale contrast normalization before detection and
+uses configurable Haar parameters so the Raspberry Pi camera can be tuned
+without code changes.
 
 Successful scans update `RobotStateStore`, so `GET /api/v1/status` includes
 the latest vision snapshot and visitor state. Future object detection models can

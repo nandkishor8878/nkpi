@@ -68,6 +68,22 @@ class ServoServiceTests(unittest.TestCase):
         self.assertEqual(calibration["center_angle"], 90)
         self.assertEqual(calibration["right_angle"], 120)
 
+    def test_auto_release_releases_pwm_after_final_move(self):
+        settings = Settings(
+            servo_auto_release_after_move=True,
+            servo_release_delay_seconds=0,
+            servo_smooth_step_delay_seconds=0,
+        )
+        state_store = RobotStateStore()
+        controller = MockServoController(settings)
+        service = ServoService(controller, state_store, settings)
+
+        result = service.set_angle(0, 90, smooth=False)
+
+        self.assertIn("PWM_RELEASED_AFTER_MOVE", result["response"])
+        self.assertIsNone(controller.angles[0])
+        self.assertEqual(state_store.snapshot().servos[0], 90)
+
 
 if __name__ == "__main__":
     unittest.main()

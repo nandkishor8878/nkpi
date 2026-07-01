@@ -66,6 +66,8 @@ class ServoService:
             "right_angle": self._settings.servo_right_angle,
             "smooth_step_degrees": self._settings.servo_smooth_step_degrees,
             "smooth_step_delay_seconds": self._settings.servo_smooth_step_delay_seconds,
+            "auto_release_after_move": self._settings.servo_auto_release_after_move,
+            "release_delay_seconds": self._settings.servo_release_delay_seconds,
             "driver": self._settings.servo_driver,
         }
 
@@ -89,7 +91,8 @@ class ServoService:
     def _move(self, channel: int, target_angle: int, smooth: bool) -> list[str]:
         current_angle = self._state_store.snapshot().servos.get(channel)
         if not smooth or current_angle is None:
-            return self._servo_controller.set_angle(channel, target_angle)
+            response = self._servo_controller.set_angle(channel, target_angle)
+            return self._release_after_move_if_enabled(channel, response)
 
         step_size = max(1, self._settings.servo_smooth_step_degrees)
         if target_angle < current_angle:
@@ -101,7 +104,22 @@ class ServoService:
             time.sleep(self._settings.servo_smooth_step_delay_seconds)
 
         last_response = self._servo_controller.set_angle(channel, target_angle)
-        return last_response
+        return self._release_after_move_if_enabled(channel, last_response)
+
+    def _release_after_move_if_enabled(self, channel: int, response: list[str]) -> list[str]:
+        if self._settings.servo_auto_release_after_move:
+            time.sleep(self._settings.servo_release_delay_seconds)
+            try:
+                return [
+                    *response,
+                    *self._servo_controller.stop(channel),
+                    "PWM_RELEASED_AFTER_MOVE",
+                ]
+            except RuntimeError:
+                logger.warning(
+                    "Servo auto-release is not supported by the configured driver"
+                )
+        return response
 
     def _validate_angle(self, angle: int) -> None:
         if angle < self._settings.servo_min_angle or angle > self._settings.servo_max_angle:

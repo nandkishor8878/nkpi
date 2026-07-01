@@ -1,5 +1,6 @@
 from aura.application.services.camera_stream_service import CameraStreamService
 from aura.application.services.robot_state_store import RobotStateStore
+from aura.config.settings import Settings
 
 
 class VisionService:
@@ -7,9 +8,11 @@ class VisionService:
         self,
         camera_stream_service: CameraStreamService,
         state_store: RobotStateStore,
+        settings: Settings | None = None,
     ):
         self._camera_stream_service = camera_stream_service
         self._state_store = state_store
+        self._settings = settings or Settings()
 
     def analyze_frame(self) -> dict:
         frame_bytes = self._camera_stream_service.get_jpeg_frame()
@@ -42,17 +45,34 @@ class VisionService:
 
     def _detect_faces(self, cv2, frame) -> list[dict]:
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-        cascade_path = cv2.data.haarcascades + "haarcascade_frontalface_default.xml"
-        detector = cv2.CascadeClassifier(cascade_path)
-        if detector.empty():
-            return []
+        gray = cv2.equalizeHist(gray)
+        clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8))
+        gray = clahe.apply(gray)
 
-        faces = detector.detectMultiScale(
-            gray,
-            scaleFactor=1.1,
-            minNeighbors=5,
-            minSize=(40, 40),
-        )
+        cascade_names = [
+            "haarcascade_frontalface_default.xml",
+            "haarcascade_frontalface_alt2.xml",
+        ]
+        faces = []
+        for cascade_name in cascade_names:
+            cascade_path = cv2.data.haarcascades + cascade_name
+            detector = cv2.CascadeClassifier(cascade_path)
+            if detector.empty():
+                continue
+
+            detected = detector.detectMultiScale(
+                gray,
+                scaleFactor=self._settings.vision_face_scale_factor,
+                minNeighbors=self._settings.vision_face_min_neighbors,
+                minSize=(
+                    self._settings.vision_face_min_size_px,
+                    self._settings.vision_face_min_size_px,
+                ),
+                flags=cv2.CASCADE_SCALE_IMAGE,
+            )
+            faces.extend(detected)
+
+        faces = self._dedupe_faces(faces)
         return [
             {
                 "x": int(x),
@@ -62,6 +82,33 @@ class VisionService:
             }
             for x, y, width, height in faces
         ]
+
+    def _dedupe_faces(self, faces) -> list[tuple[int, int, int, int]]:
+        unique_faces: list[tuple[int, int, int, int]] = []
+        for face in sorted(faces, key=lambda item: item[2] * item[3], reverse=True):
+            candidate = tuple(int(value) for value in face)
+            if all(self._overlap_ratio(candidate, existing) < 0.35 for existing in unique_faces):
+                unique_faces.append(candidate)
+        return unique_faces
+
+    def _overlap_ratio(
+        self,
+        first: tuple[int, int, int, int],
+        second: tuple[int, int, int, int],
+    ) -> float:
+        first_x, first_y, first_width, first_height = first
+        second_x, second_y, second_width, second_height = second
+
+        left = max(first_x, second_x)
+        top = max(first_y, second_y)
+        right = min(first_x + first_width, second_x + second_width)
+        bottom = min(first_y + first_height, second_y + second_height)
+        if right <= left or bottom <= top:
+            return 0.0
+
+        intersection = (right - left) * (bottom - top)
+        smaller_area = min(first_width * first_height, second_width * second_height)
+        return intersection / smaller_area
 
     def _detect_qr_codes(self, cv2, frame) -> list[dict]:
         detector = cv2.QRCodeDetector()
