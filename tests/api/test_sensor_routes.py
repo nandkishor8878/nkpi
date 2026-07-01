@@ -28,7 +28,15 @@ class SensorRouteTests(unittest.TestCase):
         status = self.client.get("/api/v1/status").get_json()
         self.assertEqual(status["sensors"]["distance_cm"], 42.7)
 
+    def test_imu_endpoint_returns_reading_and_updates_status(self):
+        response = self.client.get("/api/v1/sensors/imu")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.get_json()["imu"]["accel_z"], 1.0)
+
+        status = self.client.get("/api/v1/status").get_json()
+        self.assertEqual(status["sensors"]["imu"]["gyro_z"], 0.3)
+
 
 if __name__ == "__main__":
     unittest.main()
-

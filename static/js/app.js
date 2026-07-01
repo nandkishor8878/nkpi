@@ -9,6 +9,7 @@ const statusFields = {
     servo0Status: document.querySelector("#servo-0-status"),
     distanceStatus: document.querySelector("#distance-status"),
     visitorStatus: document.querySelector("#visitor-status"),
+    imuStatus: document.querySelector("#imu-status"),
     commandMessage: document.querySelector("#command-message")
 };
 
@@ -44,6 +45,7 @@ function renderStatus(status) {
     statusFields.servo0Status.textContent = formatServo(status.actuators.servos["0"]);
     statusFields.distanceStatus.textContent = formatDistance(status.sensors.distance_cm);
     statusFields.visitorStatus.textContent = status.visitor || "None";
+    statusFields.imuStatus.textContent = formatImu(status.sensors.imu);
 }
 
 function renderOffline(message) {
@@ -77,6 +79,14 @@ function formatDistance(distanceCm) {
     }
 
     return `${distanceCm.toFixed(1)} cm`;
+}
+
+function formatImu(imu) {
+    if (!imu) {
+        return "--";
+    }
+
+    return `A ${imu.accel_x.toFixed(2)}, ${imu.accel_y.toFixed(2)}, ${imu.accel_z.toFixed(2)} | G ${imu.gyro_x.toFixed(2)}, ${imu.gyro_y.toFixed(2)}, ${imu.gyro_z.toFixed(2)}`;
 }
 
 async function runCommand(label, callback) {
@@ -117,9 +127,14 @@ async function readDistance() {
     await runCommand("Distance read", () => requestJson("/api/v1/sensors/distance"));
 }
 
+async function readImu() {
+    await runCommand("IMU read", () => requestJson("/api/v1/sensors/imu"));
+}
+
 document.querySelector("[data-action='led-on']").addEventListener("click", ledOn);
 document.querySelector("[data-action='led-off']").addEventListener("click", ledOff);
 document.querySelector("[data-action='read-distance']").addEventListener("click", readDistance);
+document.querySelector("[data-action='read-imu']").addEventListener("click", readImu);
 
 document.querySelectorAll("[data-servo-angle]").forEach((button) => {
     button.addEventListener("click", () => {

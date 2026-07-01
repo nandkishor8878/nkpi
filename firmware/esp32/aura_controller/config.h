@@ -17,3 +17,9 @@ constexpr uint8_t ULTRASONIC_TRIGGER_PIN = 5;
 constexpr uint8_t ULTRASONIC_ECHO_PIN = 18;
 constexpr uint32_t ULTRASONIC_TIMEOUT_US = 30000;
 constexpr float ULTRASONIC_SOUND_SPEED_CM_PER_US = 0.0343;
+
+constexpr uint8_t MPU6050_I2C_ADDRESS = 0x68;
+constexpr uint8_t MPU6050_PWR_MGMT_1 = 0x6B;
+constexpr uint8_t MPU6050_ACCEL_XOUT_H = 0x3B;
+constexpr float MPU6050_ACCEL_SCALE = 16384.0;
+constexpr float MPU6050_GYRO_SCALE = 131.0;

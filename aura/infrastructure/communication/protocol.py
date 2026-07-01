@@ -3,6 +3,7 @@ class Esp32Protocol:
     LED_ON = "LED_ON"
     LED_OFF = "LED_OFF"
     READ_DISTANCE = "READ:DISTANCE"
+    READ_IMU = "READ:IMU"
 
     @staticmethod
     def servo_angle(servo_id: int, angle: int) -> str:

@@ -4,9 +4,11 @@
 
 CommandDispatcher::CommandDispatcher(
     ServoController& servoController,
-    UltrasonicSensor& ultrasonicSensor
+    UltrasonicSensor& ultrasonicSensor,
+    Mpu6050Sensor& imuSensor
 ) : servoController(servoController),
-    ultrasonicSensor(ultrasonicSensor) {}
+    ultrasonicSensor(ultrasonicSensor),
+    imuSensor(imuSensor) {}
 
 String CommandDispatcher::handle(const String& command) {
     if (command == "PING") {
@@ -29,6 +31,10 @@ String CommandDispatcher::handle(const String& command) {
 
     if (command == "READ:DISTANCE") {
         return handleDistanceCommand();
+    }
+
+    if (command == "READ:IMU") {
+        return handleImuCommand();
     }
 
     return "ERROR:UNKNOWN_COMMAND";
@@ -71,6 +77,21 @@ String CommandDispatcher::handleDistanceCommand() {
     }
 
     return "DISTANCE_CM:" + String(distanceCm, 1);
+}
+
+String CommandDispatcher::handleImuCommand() {
+    ImuReading reading;
+
+    if (!imuSensor.read(reading)) {
+        return "ERROR:IMU_READ_FAILED";
+    }
+
+    return "IMU:AX:" + String(reading.accelX, 2)
+        + ":AY:" + String(reading.accelY, 2)
+        + ":AZ:" + String(reading.accelZ, 2)
+        + ":GX:" + String(reading.gyroX, 2)
+        + ":GY:" + String(reading.gyroY, 2)
+        + ":GZ:" + String(reading.gyroZ, 2);
 }
 
 bool CommandDispatcher::parseUnsignedByte(const String& value, uint8_t& result) const {

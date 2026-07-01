@@ -28,6 +28,7 @@ Project Aura is organized as a robotics platform, not a single Flask app.
 - `POST /api/v1/led/off`
 - `POST /api/v1/servos/{servo_id}/angle` with JSON body `{"angle": 90}`
 - `GET /api/v1/sensors/distance`
+- `GET /api/v1/sensors/imu`
 
 ## Next Expansion Points
 
@@ -75,3 +76,8 @@ The Raspberry Pi sends `READ:DISTANCE` to the ESP32. The ESP32 responds with
 
 Successful reads update `RobotStateStore`, so the dashboard can render distance
 through `GET /api/v1/status`.
+
+IMU reads use the same route/service/client structure. The Raspberry Pi sends
+`READ:IMU`; the ESP32 responds with accel and gyro fields in one line:
+
+`IMU:AX:<x>:AY:<y>:AZ:<z>:GX:<x>:GY:<y>:GZ:<z>`

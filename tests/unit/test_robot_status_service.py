@@ -19,6 +19,7 @@ class RobotStatusServiceTests(unittest.TestCase):
         state_store = RobotStateStore()
         state_store.set_led("on")
         state_store.set_servo_angle(0, 90)
+        state_store.set_imu({"accel_x": 0.0, "accel_y": 0.0, "accel_z": 1.0})
         service = RobotStatusService(state_store, FakeHealthService())
 
         status = service.get_status()
@@ -29,6 +30,7 @@ class RobotStatusServiceTests(unittest.TestCase):
         self.assertEqual(status["actuators"]["led"], "on")
         self.assertEqual(status["actuators"]["servos"]["0"]["angle"], 90)
         self.assertIsNone(status["sensors"]["distance_cm"])
+        self.assertEqual(status["sensors"]["imu"]["accel_z"], 1.0)
 
 
 if __name__ == "__main__":

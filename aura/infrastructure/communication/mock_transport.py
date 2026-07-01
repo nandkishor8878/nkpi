@@ -15,6 +15,8 @@ class MockTransport:
             return ["OK"]
         if command == Esp32Protocol.READ_DISTANCE:
             return ["DISTANCE_CM:42.7"]
+        if command == Esp32Protocol.READ_IMU:
+            return ["IMU:AX:0.01:AY:0.02:AZ:1.00:GX:0.10:GY:0.20:GZ:0.30"]
         return ["UNKNOWN_COMMAND"]
 
     def close(self) -> None:

@@ -22,6 +22,7 @@ from aura.infrastructure.camera.mock_camera import MockCamera
 from aura.infrastructure.camera.pi_camera import PiCamera
 from aura.infrastructure.communication.mock_transport import MockTransport
 from aura.infrastructure.communication.serial_transport import SerialTransport
+from aura.infrastructure.sensors.imu_sensor_client import ImuSensorClient
 from aura.infrastructure.sensors.ultrasonic_sensor_client import UltrasonicSensorClient
 
 
@@ -56,6 +57,7 @@ def _build_container(settings: Settings) -> AppContainer:
     transport = _build_transport(settings)
     servo_controller = ServoController(transport, settings)
     ultrasonic_sensor = UltrasonicSensorClient(transport)
+    imu_sensor = ImuSensorClient(transport)
     state_store = RobotStateStore()
     health_service = HealthService(transport)
     robot_control_service = RobotControlService(
@@ -72,7 +74,7 @@ def _build_container(settings: Settings) -> AppContainer:
         health_service=health_service,
         robot_control_service=robot_control_service,
         robot_status_service=RobotStatusService(state_store, health_service),
-        sensor_service=SensorService(ultrasonic_sensor, state_store),
+        sensor_service=SensorService(ultrasonic_sensor, imu_sensor, state_store),
     )
 
 

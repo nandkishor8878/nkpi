@@ -14,5 +14,8 @@ class RobotStateStore:
     def set_distance_cm(self, distance_cm: float) -> None:
         self._state.distance_cm = distance_cm
 
+    def set_imu(self, imu: dict) -> None:
+        self._state.imu = imu
+
     def snapshot(self) -> RobotState:
         return self._state

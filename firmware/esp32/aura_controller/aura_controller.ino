@@ -2,13 +2,15 @@
 #include <Wire.h>
 
 #include "CommandDispatcher.h"
+#include "Mpu6050Sensor.h"
 #include "ServoController.h"
 #include "UltrasonicSensor.h"
 #include "config.h"
 
 ServoController servoController;
 UltrasonicSensor ultrasonicSensor;
-CommandDispatcher commandDispatcher(servoController, ultrasonicSensor);
+Mpu6050Sensor imuSensor;
+CommandDispatcher commandDispatcher(servoController, ultrasonicSensor, imuSensor);
 
 void setup() {
     pinMode(STATUS_LED_PIN, OUTPUT);
@@ -19,7 +21,11 @@ void setup() {
 
     servoController.begin();
     ultrasonicSensor.begin();
+    const bool imuReady = imuSensor.begin();
     Serial.println("AURA_ESP32_READY");
+    if (!imuReady) {
+        Serial.println("WARN:MPU6050_NOT_FOUND");
+    }
 }
 
 void loop() {

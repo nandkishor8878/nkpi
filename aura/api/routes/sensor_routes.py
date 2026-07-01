@@ -21,3 +21,20 @@ def read_distance():
             "distance_cm": distance_cm,
         }
     )
+
+
+@sensor_bp.get("/sensors/imu")
+def read_imu():
+    container = get_container()
+
+    try:
+        imu = container.sensor_service.read_imu()
+    except Exception as exc:
+        return jsonify({"status": "error", "error": str(exc)}), 503
+
+    return jsonify(
+        {
+            "status": "success",
+            "imu": imu,
+        }
+    )

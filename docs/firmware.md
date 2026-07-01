@@ -20,6 +20,7 @@ Commands are newline-delimited and use `115200` baud.
 | `LED_OFF` | `OK` | Turn ESP32 status LED off |
 | `SERVO:0:90` | `OK` | Move PCA9685 servo channel 0 to 90 degrees |
 | `READ:DISTANCE` | `DISTANCE_CM:42.7` | Read HC-SR04 distance in centimeters |
+| `READ:IMU` | `IMU:AX:0.01:AY:0.02:AZ:1.00:GX:0.10:GY:0.20:GZ:0.30` | Read MPU6050 accelerometer and gyro |
 
 Invalid commands return an `ERROR:...` response.
 
@@ -51,6 +52,19 @@ Default firmware pins:
 
 Important: many HC-SR04 modules output 5V on `ECHO`. ESP32 GPIO is 3.3V only.
 Use a voltage divider or level shifter before connecting `ECHO` to the ESP32.
+
+## MPU6050 Wiring
+
+The MPU6050 uses the same ESP32 I2C bus as the PCA9685.
+
+| ESP32 | MPU6050 |
+| --- | --- |
+| `3V3` | `VCC` |
+| `GND` | `GND` |
+| `GPIO 21` | `SDA` |
+| `GPIO 22` | `SCL` |
+
+Default I2C address is `0x68`.
 
 ## Servo Command Contract
 
