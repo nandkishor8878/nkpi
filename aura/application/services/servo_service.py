@@ -32,6 +32,9 @@ class ServoService:
         try:
             response = self._move(resolved_channel, angle, smooth)
         except Exception:
+            self._state_store.record_error(
+                f"Servo {resolved_channel} angle {angle} failed"
+            )
             logger.exception(
                 "Servo move failed for channel %s angle %s", resolved_channel, angle
             )
@@ -59,6 +62,7 @@ class ServoService:
         try:
             response = self._servo_controller.stop(resolved_channel)
         except Exception:
+            self._state_store.record_error(f"Servo {resolved_channel} stop failed")
             logger.exception("Servo stop failed for channel %s", resolved_channel)
             raise
 

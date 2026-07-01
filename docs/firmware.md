@@ -120,3 +120,7 @@ Default pulse range:
 Tune these values in `config.h` if your servo does not reach the expected physical range or makes noise at the endpoints.
 
 Distance timeout and pins are also configured in `config.h`.
+
+Proximity detection is computed in the Raspberry Pi application from the
+HC-SR04 distance reading. No separate ESP32 command is required beyond
+`READ:DISTANCE`.

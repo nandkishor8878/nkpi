@@ -8,9 +8,23 @@ const statusFields = {
     ledStatus: document.querySelector("#led-status"),
     servo0Status: document.querySelector("#servo-0-status"),
     distanceStatus: document.querySelector("#distance-status"),
+    proximityStatus: document.querySelector("#proximity-status"),
     visitorStatus: document.querySelector("#visitor-status"),
     imuStatus: document.querySelector("#imu-status"),
+    pollCount: document.querySelector("#poll-count"),
+    pollErrorCount: document.querySelector("#poll-error-count"),
+    commandCount: document.querySelector("#command-count"),
+    errorCount: document.querySelector("#error-count"),
+    lastCommand: document.querySelector("#last-command"),
+    lastError: document.querySelector("#last-error"),
+    lastUpdated: document.querySelector("#last-updated"),
+    eventLog: document.querySelector("#event-log"),
     commandMessage: document.querySelector("#command-message")
+};
+
+const dashboardMetrics = {
+    pollCount: 0,
+    pollErrorCount: 0
 };
 
 async function requestJson(url, options = {}) {
@@ -27,8 +41,10 @@ async function requestJson(url, options = {}) {
 async function refreshStatus() {
     try {
         const status = await requestJson("/api/v1/status");
+        dashboardMetrics.pollCount += 1;
         renderStatus(status);
     } catch (error) {
+        dashboardMetrics.pollErrorCount += 1;
         renderOffline(error.message);
     }
 }
@@ -44,8 +60,10 @@ function renderStatus(status) {
     statusFields.ledStatus.textContent = status.actuators.led;
     statusFields.servo0Status.textContent = formatServo(status.actuators.servos["0"]);
     statusFields.distanceStatus.textContent = formatDistance(status.sensors.distance_cm);
+    statusFields.proximityStatus.textContent = formatProximity(status.sensors.proximity_detected);
     statusFields.visitorStatus.textContent = status.visitor || "None";
     statusFields.imuStatus.textContent = formatImu(status.sensors.imu);
+    renderDiagnostics(status.diagnostics);
 }
 
 function renderOffline(message) {
@@ -53,6 +71,8 @@ function renderOffline(message) {
     statusFields.systemStatus.className = "status-pill offline";
     statusFields.connectionMessage.textContent = message || "Robot API unavailable";
     statusFields.esp32Status.textContent = "--";
+    statusFields.pollCount.textContent = dashboardMetrics.pollCount;
+    statusFields.pollErrorCount.textContent = dashboardMetrics.pollErrorCount;
 }
 
 function formatUptime(seconds) {
@@ -89,12 +109,48 @@ function formatDistance(distanceCm) {
     return `${distanceCm.toFixed(1)} cm`;
 }
 
+function formatProximity(detected) {
+    if (typeof detected !== "boolean") {
+        return "--";
+    }
+
+    return detected ? "Detected" : "Clear";
+}
+
 function formatImu(imu) {
     if (!imu) {
         return "--";
     }
 
     return `A ${imu.accel_x.toFixed(2)}, ${imu.accel_y.toFixed(2)}, ${imu.accel_z.toFixed(2)} | G ${imu.gyro_x.toFixed(2)}, ${imu.gyro_y.toFixed(2)}, ${imu.gyro_z.toFixed(2)}`;
+}
+
+function renderDiagnostics(diagnostics) {
+    statusFields.pollCount.textContent = dashboardMetrics.pollCount;
+    statusFields.pollErrorCount.textContent = dashboardMetrics.pollErrorCount;
+
+    if (!diagnostics) {
+        return;
+    }
+
+    statusFields.commandCount.textContent = diagnostics.command_count;
+    statusFields.errorCount.textContent = diagnostics.error_count;
+    statusFields.lastCommand.textContent = diagnostics.last_command || "--";
+    statusFields.lastError.textContent = diagnostics.last_error || "--";
+    statusFields.lastUpdated.textContent = new Date().toLocaleTimeString();
+    renderEventLog(diagnostics.recent_events || []);
+}
+
+function renderEventLog(events) {
+    statusFields.eventLog.replaceChildren();
+
+    events.slice().reverse().forEach((event) => {
+        const item = document.createElement("li");
+        item.className = `event-${event.level}`;
+        const timestamp = new Date(event.timestamp * 1000).toLocaleTimeString();
+        item.textContent = `${timestamp} ${event.level.toUpperCase()} ${event.message}`;
+        statusFields.eventLog.appendChild(item);
+    });
 }
 
 async function runCommand(label, callback) {
@@ -159,6 +215,10 @@ async function readDistance() {
     await runCommand("Distance read", () => requestJson("/api/v1/sensors/distance"));
 }
 
+async function readProximity() {
+    await runCommand("Proximity read", () => requestJson("/api/v1/sensors/proximity"));
+}
+
 async function readImu() {
     await runCommand("IMU read", () => requestJson("/api/v1/sensors/imu"));
 }
@@ -167,6 +227,7 @@ document.querySelector("[data-action='led-on']").addEventListener("click", ledOn
 document.querySelector("[data-action='led-off']").addEventListener("click", ledOff);
 document.querySelector("[data-action='servo-stop']").addEventListener("click", stopServo);
 document.querySelector("[data-action='read-distance']").addEventListener("click", readDistance);
+document.querySelector("[data-action='read-proximity']").addEventListener("click", readProximity);
 document.querySelector("[data-action='read-imu']").addEventListener("click", readImu);
 
 document.querySelectorAll("[data-servo-angle]").forEach((button) => {

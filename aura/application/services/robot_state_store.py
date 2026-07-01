@@ -1,4 +1,9 @@
-from aura.domain.models.robot_state import RobotState
+import time
+
+from aura.domain.models.robot_state import DiagnosticEvent, RobotState
+
+
+MAX_DIAGNOSTIC_EVENTS = 20
 
 
 class RobotStateStore:
@@ -7,18 +12,49 @@ class RobotStateStore:
 
     def set_led(self, state: str) -> None:
         self._state.led = state
+        self.record_command(f"LED {state}")
 
     def set_servo_angle(self, servo_id: int, angle: int) -> None:
         self._state.servos[servo_id] = angle
+        self.record_command(f"Servo {servo_id} angle {angle}")
 
     def stop_servo(self, servo_id: int) -> None:
         self._state.servos[servo_id] = None
+        self.record_command(f"Servo {servo_id} stop")
 
     def set_distance_cm(self, distance_cm: float) -> None:
         self._state.distance_cm = distance_cm
+        self.record_command(f"Distance {distance_cm:.1f} cm")
+
+    def set_proximity(self, detected: bool, distance_cm: float) -> None:
+        self._state.proximity_detected = detected
+        self._state.distance_cm = distance_cm
+        state = "detected" if detected else "clear"
+        self.record_command(f"Proximity {state} at {distance_cm:.1f} cm")
 
     def set_imu(self, imu: dict) -> None:
         self._state.imu = imu
+        self.record_command("IMU read")
+
+    def record_command(self, message: str) -> None:
+        self._state.command_count += 1
+        self._state.last_command = message
+        self._append_event("info", message)
+
+    def record_error(self, message: str) -> None:
+        self._state.error_count += 1
+        self._state.last_error = message
+        self._append_event("error", message)
+
+    def _append_event(self, level: str, message: str) -> None:
+        self._state.events.append(
+            DiagnosticEvent(
+                timestamp=time.time(),
+                level=level,
+                message=message,
+            )
+        )
+        self._state.events = self._state.events[-MAX_DIAGNOSTIC_EVENTS:]
 
     def snapshot(self) -> RobotState:
         return self._state

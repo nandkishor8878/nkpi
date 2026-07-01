@@ -23,6 +23,23 @@ def read_distance():
     )
 
 
+@sensor_bp.get("/sensors/proximity")
+def read_proximity():
+    container = get_container()
+
+    try:
+        proximity = container.sensor_service.read_proximity()
+    except Exception as exc:
+        return jsonify({"status": "error", "error": str(exc)}), 503
+
+    return jsonify(
+        {
+            "status": "success",
+            "proximity": proximity,
+        }
+    )
+
+
 @sensor_bp.get("/sensors/imu")
 def read_imu():
     container = get_container()

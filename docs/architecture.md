@@ -30,6 +30,7 @@ Project Aura is organized as a robotics platform, not a single Flask app.
 - `POST /api/v1/servo/stop` with JSON body `{"channel": 0}`
 - `POST /api/v1/servos/{servo_id}/angle` with JSON body `{"angle": 90}`
 - `GET /api/v1/sensors/distance`
+- `GET /api/v1/sensors/proximity`
 - `GET /api/v1/sensors/imu`
 
 ## Next Expansion Points
@@ -78,6 +79,17 @@ Command services update `RobotStateStore` after successful hardware responses.
 Future telemetry from sensors can update the same store without changing the
 dashboard contract.
 
+The status payload also includes diagnostics:
+
+- command count
+- error count
+- last command
+- last error
+- recent event log
+
+The dashboard adds client-side poll metrics and displays backend diagnostics in
+the Diagnostics panel.
+
 ## Distance Sensor
 
 Distance reads flow through:
@@ -89,6 +101,10 @@ The Raspberry Pi sends `READ:DISTANCE` to the ESP32. The ESP32 responds with
 
 Successful reads update `RobotStateStore`, so the dashboard can render distance
 through `GET /api/v1/status`.
+
+Proximity is derived from the HC-SR04 distance reading using
+`AURA_PROXIMITY_THRESHOLD_CM`. `GET /api/v1/sensors/proximity` returns whether
+something is within the configured threshold and updates robot state.
 
 IMU reads use the same route/service/client structure. The Raspberry Pi sends
 `READ:IMU`; the ESP32 responds with accel and gyro fields in one line:

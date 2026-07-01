@@ -79,7 +79,7 @@ def _build_container(settings: Settings) -> AppContainer:
         robot_control_service=robot_control_service,
         servo_service=servo_service,
         robot_status_service=RobotStatusService(state_store, health_service),
-        sensor_service=SensorService(ultrasonic_sensor, imu_sensor, state_store),
+        sensor_service=SensorService(ultrasonic_sensor, imu_sensor, state_store, settings),
     )
 
 

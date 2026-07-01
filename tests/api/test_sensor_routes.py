@@ -28,6 +28,17 @@ class SensorRouteTests(unittest.TestCase):
         status = self.client.get("/api/v1/status").get_json()
         self.assertEqual(status["sensors"]["distance_cm"], 42.7)
 
+    def test_proximity_endpoint_returns_detection_and_updates_status(self):
+        response = self.client.get("/api/v1/sensors/proximity")
+
+        self.assertEqual(response.status_code, 200)
+        payload = response.get_json()
+        self.assertTrue(payload["proximity"]["detected"])
+        self.assertEqual(payload["proximity"]["distance_cm"], 42.7)
+
+        status = self.client.get("/api/v1/status").get_json()
+        self.assertTrue(status["sensors"]["proximity_detected"])
+
     def test_imu_endpoint_returns_reading_and_updates_status(self):
         response = self.client.get("/api/v1/sensors/imu")
 

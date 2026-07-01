@@ -36,7 +36,22 @@ class RobotStatusService:
             },
             "sensors": {
                 "distance_cm": state.distance_cm,
+                "proximity_detected": state.proximity_detected,
                 "imu": state.imu,
             },
             "visitor": state.visitor,
+            "diagnostics": {
+                "command_count": state.command_count,
+                "error_count": state.error_count,
+                "last_command": state.last_command,
+                "last_error": state.last_error,
+                "recent_events": [
+                    {
+                        "timestamp": event.timestamp,
+                        "level": event.level,
+                        "message": event.message,
+                    }
+                    for event in state.events[-8:]
+                ],
+            },
         }

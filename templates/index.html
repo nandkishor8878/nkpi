@@ -55,6 +55,10 @@
                         <dd id="distance-status">--</dd>
                     </div>
                     <div>
+                        <dt>Proximity</dt>
+                        <dd id="proximity-status">--</dd>
+                    </div>
+                    <div>
                         <dt>Visitor</dt>
                         <dd id="visitor-status">--</dd>
                     </div>
@@ -94,6 +98,7 @@
                     <span>Distance</span>
                     <div class="button-row">
                         <button type="button" data-action="read-distance">Read</button>
+                        <button type="button" data-action="read-proximity">Proximity</button>
                     </div>
                 </div>
 
@@ -105,6 +110,41 @@
                 </div>
 
                 <p id="command-message" class="command-message">Ready</p>
+            </section>
+
+            <section class="panel">
+                <h2>Diagnostics</h2>
+                <dl class="status-grid">
+                    <div>
+                        <dt>Polls</dt>
+                        <dd id="poll-count">0</dd>
+                    </div>
+                    <div>
+                        <dt>Poll Errors</dt>
+                        <dd id="poll-error-count">0</dd>
+                    </div>
+                    <div>
+                        <dt>Commands</dt>
+                        <dd id="command-count">0</dd>
+                    </div>
+                    <div>
+                        <dt>Errors</dt>
+                        <dd id="error-count">0</dd>
+                    </div>
+                    <div>
+                        <dt>Last Command</dt>
+                        <dd id="last-command">--</dd>
+                    </div>
+                    <div>
+                        <dt>Last Error</dt>
+                        <dd id="last-error">--</dd>
+                    </div>
+                    <div>
+                        <dt>Updated</dt>
+                        <dd id="last-updated">--</dd>
+                    </div>
+                </dl>
+                <ol id="event-log" class="event-log"></ol>
             </section>
         </aside>
     </section>

@@ -32,6 +32,7 @@ class Settings:
     servo_smooth_step_delay_seconds: float = 0.02
     pca9685_channels: int = 16
     pca9685_i2c_address: int = 0x40
+    proximity_threshold_cm: float = 50.0
     testing: bool = False
 
     @classmethod
@@ -62,5 +63,6 @@ class Settings:
             ),
             pca9685_channels=int(os.getenv("AURA_PCA9685_CHANNELS", "16")),
             pca9685_i2c_address=int(os.getenv("AURA_PCA9685_I2C_ADDRESS", "0x40"), 0),
+            proximity_threshold_cm=float(os.getenv("AURA_PROXIMITY_THRESHOLD_CM", "50")),
             testing=_env_bool("AURA_TESTING", False),
         )

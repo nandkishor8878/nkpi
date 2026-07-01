@@ -164,6 +164,29 @@ button:hover {
     font-size: 14px;
 }
 
+.event-log {
+    display: grid;
+    gap: 8px;
+    margin: 14px 0 0;
+    max-height: 180px;
+    overflow: auto;
+    padding-left: 18px;
+    color: #405060;
+    font-size: 13px;
+}
+
+.event-log li {
+    overflow-wrap: anywhere;
+}
+
+.event-error {
+    color: #9a2b2b;
+}
+
+.event-info {
+    color: #345a78;
+}
+
 @media (max-width: 900px) {
     .dashboard {
         grid-template-columns: 1fr;
