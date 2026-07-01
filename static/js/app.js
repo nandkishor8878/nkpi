@@ -66,7 +66,15 @@ function formatUptime(seconds) {
 }
 
 function formatServo(servo) {
-    if (!servo || typeof servo.angle !== "number") {
+    if (!servo) {
+        return "--";
+    }
+
+    if (servo.state === "stopped") {
+        return "Stopped";
+    }
+
+    if (typeof servo.angle !== "number") {
         return "--";
     }
 
@@ -123,6 +131,20 @@ async function setServoAngle(angle) {
     );
 }
 
+async function stopServo() {
+    await runCommand(
+        "Servo stop",
+        () => requestJson(
+            "/api/v1/servo/stop",
+            {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({channel: 0})
+            }
+        )
+    );
+}
+
 function servoPositionToAngle(position) {
     const positions = {
         left: 45,
@@ -143,6 +165,7 @@ async function readImu() {
 
 document.querySelector("[data-action='led-on']").addEventListener("click", ledOn);
 document.querySelector("[data-action='led-off']").addEventListener("click", ledOff);
+document.querySelector("[data-action='servo-stop']").addEventListener("click", stopServo);
 document.querySelector("[data-action='read-distance']").addEventListener("click", readDistance);
 document.querySelector("[data-action='read-imu']").addEventListener("click", readImu);
 

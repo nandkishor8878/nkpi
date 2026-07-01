@@ -27,6 +27,7 @@ Project Aura is organized as a robotics platform, not a single Flask app.
 - `POST /api/v1/led/on`
 - `POST /api/v1/led/off`
 - `POST /api/v1/servo` with JSON body `{"channel": 0, "angle": 90}`
+- `POST /api/v1/servo/stop` with JSON body `{"channel": 0}`
 - `POST /api/v1/servos/{servo_id}/angle` with JSON body `{"angle": 90}`
 - `GET /api/v1/sensors/distance`
 - `GET /api/v1/sensors/imu`
@@ -54,6 +55,10 @@ where the PCA9685 is wired to ESP32 instead of the Pi.
 
 `ServoService` validates angle limits, supports smooth movement, updates robot
 state after successful movement, and keeps Flask routes thin.
+
+`POST /api/v1/servo/stop` releases the PCA9685 PWM signal for the requested
+channel when using the direct Raspberry Pi driver. This is different from
+Center, which moves the servo to the configured center angle.
 
 The ESP32 firmware side mirrors this with:
 

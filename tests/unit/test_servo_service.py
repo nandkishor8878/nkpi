@@ -37,6 +37,19 @@ class ServoServiceTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             service.set_angle(0, 181)
 
+    def test_stop_releases_servo_and_updates_state(self):
+        settings = Settings()
+        state_store = RobotStateStore()
+        controller = MockServoController(settings)
+        service = ServoService(controller, state_store, settings)
+
+        result = service.stop(0)
+
+        self.assertEqual(result["channel"], 0)
+        self.assertEqual(result["state"], "stopped")
+        self.assertIsNone(controller.angles[0])
+        self.assertIsNone(state_store.snapshot().servos[0])
+
 
 if __name__ == "__main__":
     unittest.main()

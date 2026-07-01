@@ -34,6 +34,18 @@ class Pca9685ServoController:
         logger.info("Set servo channel %s to %s degrees", channel, angle)
         return ["OK"]
 
+    def stop(self, channel: int) -> list[str]:
+        self._validate_channel(channel)
+
+        try:
+            self._kit.servo[channel].angle = None
+        except Exception:
+            logger.exception("Failed to stop servo channel %s", channel)
+            raise
+
+        logger.info("Released servo channel %s PWM signal", channel)
+        return ["OK"]
+
     def _validate_channel(self, channel: int) -> None:
         if channel < 0 or channel >= self._settings.pca9685_channels:
             raise ValueError(

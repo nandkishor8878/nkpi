@@ -12,6 +12,11 @@ class MockServoController:
         self.angles[channel] = angle
         return ["OK"]
 
+    def stop(self, channel: int) -> list[str]:
+        self._validate_channel(channel)
+        self.angles[channel] = None
+        return ["OK"]
+
     def _validate_channel(self, channel: int) -> None:
         if channel < 0 or channel >= self._settings.pca9685_channels:
             raise ValueError(

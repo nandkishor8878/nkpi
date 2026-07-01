@@ -27,7 +27,10 @@ class RobotStatusService:
             "actuators": {
                 "led": state.led,
                 "servos": {
-                    str(servo_id): {"angle": angle}
+                    str(servo_id): {
+                        "angle": angle,
+                        "state": "stopped" if angle is None else "positioned",
+                    }
                     for servo_id, angle in sorted(state.servos.items())
                 },
             },

@@ -29,6 +29,7 @@ class RobotStatusServiceTests(unittest.TestCase):
         self.assertEqual(status["components"]["esp32"], "ok")
         self.assertEqual(status["actuators"]["led"], "on")
         self.assertEqual(status["actuators"]["servos"]["0"]["angle"], 90)
+        self.assertEqual(status["actuators"]["servos"]["0"]["state"], "positioned")
         self.assertIsNone(status["sensors"]["distance_cm"])
         self.assertEqual(status["sensors"]["imu"]["accel_z"], 1.0)
 

@@ -14,6 +14,10 @@ class ServoController:
         self._validate_angle(angle)
         return self._transport.send(Esp32Protocol.servo_angle(servo_id, angle))
 
+    def stop(self, servo_id: int) -> list[str]:
+        self._validate_servo_id(servo_id)
+        raise RuntimeError("Servo stop is not supported by the ESP32 serial driver")
+
     def _validate_servo_id(self, servo_id: int) -> None:
         if servo_id < 0:
             raise ValueError("servo_id must be greater than or equal to 0")

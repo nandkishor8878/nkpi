@@ -31,6 +31,25 @@ def set_servo():
     return jsonify({"status": "success", **result})
 
 
+@servo_bp.post("/servo/stop")
+def stop_servo():
+    payload = request.get_json(silent=True) or {}
+    channel = payload.get("channel")
+
+    if channel is not None and type(channel) is not int:
+        return jsonify({"status": "error", "error": "channel must be an integer"}), 400
+
+    container = get_container()
+    try:
+        result = container.servo_service.stop(channel)
+    except ValueError as exc:
+        return jsonify({"status": "error", "error": str(exc)}), 400
+    except Exception as exc:
+        return jsonify({"status": "error", "error": str(exc)}), 503
+
+    return jsonify({"status": "success", **result})
+
+
 @servo_bp.post("/servos/<int:servo_id>/angle")
 def set_servo_angle(servo_id: int):
     payload = request.get_json(silent=True) or {}

@@ -53,6 +53,22 @@ class ServoService:
     def move_right(self, channel: int | None = None) -> dict:
         return self.set_angle(channel, self._settings.servo_right_angle)
 
+    def stop(self, channel: int | None = None) -> dict:
+        resolved_channel = self._settings.servo_default_channel if channel is None else channel
+
+        try:
+            response = self._servo_controller.stop(resolved_channel)
+        except Exception:
+            logger.exception("Servo stop failed for channel %s", resolved_channel)
+            raise
+
+        self._state_store.stop_servo(resolved_channel)
+        return {
+            "channel": resolved_channel,
+            "state": "stopped",
+            "response": response,
+        }
+
     def _move(self, channel: int, target_angle: int, smooth: bool) -> list[str]:
         current_angle = self._state_store.snapshot().servos.get(channel)
         if not smooth or current_angle is None:

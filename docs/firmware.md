@@ -101,6 +101,14 @@ The firmware accepts PCA9685 channels `0` through `15` and servo angles `0` thro
 For the current hardware setup, PCA9685 is connected to Raspberry Pi I2C and
 detected at address `0x40`, so the direct Pi driver is preferred.
 
+To release the servo PWM signal with the Raspberry Pi PCA9685 driver:
+
+```bash
+curl -X POST http://<PI_IP>:5000/api/v1/servo/stop \
+  -H "Content-Type: application/json" \
+  -d '{"channel": 0}'
+```
+
 ## Calibration
 
 Default pulse range:

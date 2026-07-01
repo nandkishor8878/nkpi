@@ -11,6 +11,9 @@ class RobotStateStore:
     def set_servo_angle(self, servo_id: int, angle: int) -> None:
         self._state.servos[servo_id] = angle
 
+    def stop_servo(self, servo_id: int) -> None:
+        self._state.servos[servo_id] = None
+
     def set_distance_cm(self, distance_cm: float) -> None:
         self._state.distance_cm = distance_cm
 
