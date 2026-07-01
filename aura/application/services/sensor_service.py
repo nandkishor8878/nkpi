@@ -44,3 +44,10 @@ class SensorService:
             raise
         self._state_store.set_imu(imu)
         return imu
+
+    def read_imu_status(self) -> dict:
+        try:
+            return self._imu_sensor.read_status()
+        except Exception as exc:
+            self._state_store.record_error(f"IMU status failed: {exc}")
+            raise

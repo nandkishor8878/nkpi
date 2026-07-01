@@ -19,6 +19,10 @@ class ImuSensorClient:
         response = self._transport.send(Esp32Protocol.READ_IMU)
         return self._parse_imu_response(response)
 
+    def read_status(self) -> dict:
+        response = self._transport.send(Esp32Protocol.READ_IMU_STATUS)
+        return self._parse_status_response(response)
+
     def _parse_imu_response(self, response: list[str]) -> dict:
         for line in response:
             if line.startswith("IMU:"):
@@ -29,6 +33,32 @@ class ImuSensorClient:
             raise RuntimeError(error)
 
         raise RuntimeError("IMU response missing IMU value")
+
+    def _parse_status_response(self, response: list[str]) -> dict:
+        for line in response:
+            if line.startswith("IMU_STATUS:"):
+                return self._parse_status_line(line)
+
+        error = next((line for line in response if line.startswith("ERROR:")), None)
+        if error is not None:
+            raise RuntimeError(error)
+
+        raise RuntimeError("IMU status response missing IMU_STATUS value")
+
+    def _parse_status_line(self, line: str) -> dict:
+        parts = line.split(":")
+        if len(parts) != 7 or parts[0] != "IMU_STATUS":
+            raise RuntimeError("Invalid IMU status response format")
+
+        values = {}
+        for index in range(1, len(parts), 2):
+            values[parts[index]] = parts[index + 1]
+
+        return {
+            "connected": values.get("CONNECTED") == "1",
+            "address": values.get("ADDRESS"),
+            "error": values.get("ERROR"),
+        }
 
     def _parse_imu_line(self, line: str) -> dict:
         parts = line.split(":")

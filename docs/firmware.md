@@ -21,6 +21,7 @@ Commands are newline-delimited and use `115200` baud.
 | `SERVO:0:90` | `OK` | Move PCA9685 servo channel 0 to 90 degrees |
 | `READ:DISTANCE` | `DISTANCE_CM:42.7` | Read HC-SR04 distance in centimeters |
 | `READ:IMU` | `IMU:AX:0.01:AY:0.02:AZ:1.00:GX:0.10:GY:0.20:GZ:0.30` | Read MPU6050 accelerometer and gyro |
+| `READ:IMU_STATUS` | `IMU_STATUS:CONNECTED:1:ADDRESS:0x68:ERROR:NONE` | Check MPU6050 wiring/address status |
 
 Invalid commands return an `ERROR:...` response.
 

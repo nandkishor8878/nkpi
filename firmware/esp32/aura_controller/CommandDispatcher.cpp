@@ -37,6 +37,10 @@ String CommandDispatcher::handle(const String& command) {
         return handleImuCommand();
     }
 
+    if (command == "READ:IMU_STATUS") {
+        return handleImuStatusCommand();
+    }
+
     return "ERROR:UNKNOWN_COMMAND";
 }
 
@@ -92,6 +96,10 @@ String CommandDispatcher::handleImuCommand() {
         + ":GX:" + String(reading.gyroX, 2)
         + ":GY:" + String(reading.gyroY, 2)
         + ":GZ:" + String(reading.gyroZ, 2);
+}
+
+String CommandDispatcher::handleImuStatusCommand() {
+    return imuSensor.status();
 }
 
 bool CommandDispatcher::parseUnsignedByte(const String& value, uint8_t& result) const {

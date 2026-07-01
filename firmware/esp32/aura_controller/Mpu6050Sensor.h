@@ -14,9 +14,10 @@ struct ImuReading {
 class Mpu6050Sensor {
 public:
     bool begin();
+    bool isConnected();
     bool read(ImuReading& reading);
+    String status();
 
 private:
     int16_t readWord();
 };
-

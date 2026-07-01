@@ -24,5 +24,6 @@ private:
     String handleServoCommand(const String& command);
     String handleDistanceCommand();
     String handleImuCommand();
+    String handleImuStatusCommand();
     bool parseUnsignedByte(const String& value, uint8_t& result) const;
 };

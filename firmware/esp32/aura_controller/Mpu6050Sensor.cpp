@@ -11,6 +11,11 @@ bool Mpu6050Sensor::begin() {
     return Wire.endTransmission() == 0;
 }
 
+bool Mpu6050Sensor::isConnected() {
+    Wire.beginTransmission(MPU6050_I2C_ADDRESS);
+    return Wire.endTransmission() == 0;
+}
+
 bool Mpu6050Sensor::read(ImuReading& reading) {
     Wire.beginTransmission(MPU6050_I2C_ADDRESS);
     Wire.write(MPU6050_ACCEL_XOUT_H);
@@ -39,6 +44,19 @@ bool Mpu6050Sensor::read(ImuReading& reading) {
     reading.gyroY = gyroYRaw / MPU6050_GYRO_SCALE;
     reading.gyroZ = gyroZRaw / MPU6050_GYRO_SCALE;
     return true;
+}
+
+String Mpu6050Sensor::status() {
+    if (!isConnected()) {
+        return "IMU_STATUS:CONNECTED:0:ADDRESS:0x68:ERROR:NOT_FOUND";
+    }
+
+    ImuReading reading;
+    if (!read(reading)) {
+        return "IMU_STATUS:CONNECTED:1:ADDRESS:0x68:ERROR:READ_FAILED";
+    }
+
+    return "IMU_STATUS:CONNECTED:1:ADDRESS:0x68:ERROR:NONE";
 }
 
 int16_t Mpu6050Sensor::readWord() {

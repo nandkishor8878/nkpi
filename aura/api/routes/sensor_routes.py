@@ -55,3 +55,20 @@ def read_imu():
             "imu": imu,
         }
     )
+
+
+@sensor_bp.get("/sensors/imu/status")
+def read_imu_status():
+    container = get_container()
+
+    try:
+        imu_status = container.sensor_service.read_imu_status()
+    except Exception as exc:
+        return jsonify({"status": "error", "error": str(exc)}), 503
+
+    return jsonify(
+        {
+            "status": "success",
+            "imu_status": imu_status,
+        }
+    )

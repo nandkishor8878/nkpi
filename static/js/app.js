@@ -11,6 +11,7 @@ const statusFields = {
     proximityStatus: document.querySelector("#proximity-status"),
     visitorStatus: document.querySelector("#visitor-status"),
     imuStatus: document.querySelector("#imu-status"),
+    imuLinkStatus: document.querySelector("#imu-link-status"),
     pollCount: document.querySelector("#poll-count"),
     pollErrorCount: document.querySelector("#poll-error-count"),
     commandCount: document.querySelector("#command-count"),
@@ -125,6 +126,15 @@ function formatImu(imu) {
     return `A ${imu.accel_x.toFixed(2)}, ${imu.accel_y.toFixed(2)}, ${imu.accel_z.toFixed(2)} | G ${imu.gyro_x.toFixed(2)}, ${imu.gyro_y.toFixed(2)}, ${imu.gyro_z.toFixed(2)}`;
 }
 
+function formatImuStatus(imuStatus) {
+    if (!imuStatus) {
+        return "--";
+    }
+
+    const state = imuStatus.connected ? "Connected" : "Missing";
+    return `${state} ${imuStatus.address || ""} ${imuStatus.error || ""}`.trim();
+}
+
 function renderDiagnostics(diagnostics) {
     statusFields.pollCount.textContent = dashboardMetrics.pollCount;
     statusFields.pollErrorCount.textContent = dashboardMetrics.pollErrorCount;
@@ -223,12 +233,23 @@ async function readImu() {
     await runCommand("IMU read", () => requestJson("/api/v1/sensors/imu"));
 }
 
+async function readImuStatus() {
+    await runCommand(
+        "IMU status",
+        async () => {
+            const payload = await requestJson("/api/v1/sensors/imu/status");
+            statusFields.imuLinkStatus.textContent = formatImuStatus(payload.imu_status);
+        }
+    );
+}
+
 document.querySelector("[data-action='led-on']").addEventListener("click", ledOn);
 document.querySelector("[data-action='led-off']").addEventListener("click", ledOff);
 document.querySelector("[data-action='servo-stop']").addEventListener("click", stopServo);
 document.querySelector("[data-action='read-distance']").addEventListener("click", readDistance);
 document.querySelector("[data-action='read-proximity']").addEventListener("click", readProximity);
 document.querySelector("[data-action='read-imu']").addEventListener("click", readImu);
+document.querySelector("[data-action='read-imu-status']").addEventListener("click", readImuStatus);
 
 document.querySelectorAll("[data-servo-angle]").forEach((button) => {
     button.addEventListener("click", () => {

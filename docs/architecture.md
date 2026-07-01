@@ -32,6 +32,7 @@ Project Aura is organized as a robotics platform, not a single Flask app.
 - `GET /api/v1/sensors/distance`
 - `GET /api/v1/sensors/proximity`
 - `GET /api/v1/sensors/imu`
+- `GET /api/v1/sensors/imu/status`
 
 ## Next Expansion Points
 
@@ -110,3 +111,6 @@ IMU reads use the same route/service/client structure. The Raspberry Pi sends
 `READ:IMU`; the ESP32 responds with accel and gyro fields in one line:
 
 `IMU:AX:<x>:AY:<y>:AZ:<z>:GX:<x>:GY:<y>:GZ:<z>`
+
+`GET /api/v1/sensors/imu/status` sends `READ:IMU_STATUS` so wiring/address
+issues can be diagnosed without guessing.

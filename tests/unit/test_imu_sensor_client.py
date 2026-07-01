@@ -36,6 +36,27 @@ class ImuSensorClientTests(unittest.TestCase):
         with self.assertRaises(RuntimeError):
             sensor.read_imu()
 
+    def test_parses_imu_status_response(self):
+        transport = FakeTransport(["IMU_STATUS:CONNECTED:1:ADDRESS:0x68:ERROR:NONE"])
+        sensor = ImuSensorClient(transport)
+
+        status = sensor.read_status()
+
+        self.assertEqual(transport.commands, ["READ:IMU_STATUS"])
+        self.assertTrue(status["connected"])
+        self.assertEqual(status["address"], "0x68")
+        self.assertEqual(status["error"], "NONE")
+
+    def test_parses_missing_imu_status_response(self):
+        sensor = ImuSensorClient(
+            FakeTransport(["IMU_STATUS:CONNECTED:0:ADDRESS:0x68:ERROR:NOT_FOUND"])
+        )
+
+        status = sensor.read_status()
+
+        self.assertFalse(status["connected"])
+        self.assertEqual(status["error"], "NOT_FOUND")
+
 
 if __name__ == "__main__":
     unittest.main()

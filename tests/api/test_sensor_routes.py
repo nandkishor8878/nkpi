@@ -48,6 +48,14 @@ class SensorRouteTests(unittest.TestCase):
         status = self.client.get("/api/v1/status").get_json()
         self.assertEqual(status["sensors"]["imu"]["gyro_z"], 0.3)
 
+    def test_imu_status_endpoint_returns_connection_status(self):
+        response = self.client.get("/api/v1/sensors/imu/status")
+
+        self.assertEqual(response.status_code, 200)
+        payload = response.get_json()
+        self.assertTrue(payload["imu_status"]["connected"])
+        self.assertEqual(payload["imu_status"]["address"], "0x68")
+
 
 if __name__ == "__main__":
     unittest.main()
