@@ -56,6 +56,19 @@ class ServoService:
     def move_right(self, channel: int | None = None) -> dict:
         return self.set_angle(channel, self._settings.servo_right_angle)
 
+    def get_calibration(self) -> dict:
+        return {
+            "default_channel": self._settings.servo_default_channel,
+            "min_angle": self._settings.servo_min_angle,
+            "max_angle": self._settings.servo_max_angle,
+            "left_angle": self._settings.servo_left_angle,
+            "center_angle": self._settings.servo_center_angle,
+            "right_angle": self._settings.servo_right_angle,
+            "smooth_step_degrees": self._settings.servo_smooth_step_degrees,
+            "smooth_step_delay_seconds": self._settings.servo_smooth_step_delay_seconds,
+            "driver": self._settings.servo_driver,
+        }
+
     def stop(self, channel: int | None = None) -> dict:
         resolved_channel = self._settings.servo_default_channel if channel is None else channel
 

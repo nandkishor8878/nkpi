@@ -1,0 +1,17 @@
+[Unit]
+Description=Project Aura Smart Reception Assistant
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=nkpi
+Group=nkpi
+WorkingDirectory=/home/nkpi/smart-reception-assistant
+EnvironmentFile=/home/nkpi/smart-reception-assistant/config/env/production.env
+ExecStart=/home/nkpi/smart-reception-assistant/.venv/bin/python /home/nkpi/smart-reception-assistant/app.py
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

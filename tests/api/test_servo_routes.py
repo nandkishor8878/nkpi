@@ -38,6 +38,14 @@ class ServoRouteTests(unittest.TestCase):
         container = self.app.extensions["aura"]
         self.assertIsNone(container.state_store.snapshot().servos[0])
 
+    def test_servo_calibration_endpoint_returns_settings(self):
+        response = self.client.get("/api/v1/servo/calibration")
+
+        self.assertEqual(response.status_code, 200)
+        payload = response.get_json()
+        self.assertEqual(payload["calibration"]["default_channel"], 0)
+        self.assertEqual(payload["calibration"]["center_angle"], 90)
+
     def test_set_servo_endpoint_accepts_channel_and_angle(self):
         response = self.client.post(
             "/api/v1/servo",

@@ -6,6 +6,17 @@ from aura.api.routes._container import get_container
 servo_bp = Blueprint("servo", __name__, url_prefix="/api/v1")
 
 
+@servo_bp.get("/servo/calibration")
+def get_servo_calibration():
+    container = get_container()
+    return jsonify(
+        {
+            "status": "success",
+            "calibration": container.servo_service.get_calibration(),
+        }
+    )
+
+
 @servo_bp.post("/servo")
 def set_servo():
     payload = request.get_json(silent=True) or {}

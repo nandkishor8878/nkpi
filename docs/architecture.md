@@ -28,6 +28,7 @@ Project Aura is organized as a robotics platform, not a single Flask app.
 - `POST /api/v1/led/off`
 - `POST /api/v1/servo` with JSON body `{"channel": 0, "angle": 90}`
 - `POST /api/v1/servo/stop` with JSON body `{"channel": 0}`
+- `GET /api/v1/servo/calibration`
 - `POST /api/v1/servos/{servo_id}/angle` with JSON body `{"angle": 90}`
 - `GET /api/v1/sensors/distance`
 - `GET /api/v1/sensors/proximity`

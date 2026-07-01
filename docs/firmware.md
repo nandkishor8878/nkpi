@@ -98,6 +98,8 @@ SERVO:<servo_id>:<angle>
 ```
 
 The firmware accepts PCA9685 channels `0` through `15` and servo angles `0` through `180`.
+For the Raspberry Pi direct PCA9685 path, production config uses a safer
+starting range of `30` through `150` degrees until the servo is calibrated.
 
 For the current hardware setup, PCA9685 is connected to Raspberry Pi I2C and
 detected at address `0x40`, so the direct Pi driver is preferred.

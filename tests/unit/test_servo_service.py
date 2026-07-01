@@ -50,6 +50,24 @@ class ServoServiceTests(unittest.TestCase):
         self.assertIsNone(controller.angles[0])
         self.assertIsNone(state_store.snapshot().servos[0])
 
+    def test_get_calibration_returns_safe_values(self):
+        settings = Settings(
+            servo_min_angle=30,
+            servo_max_angle=150,
+            servo_left_angle=60,
+            servo_center_angle=90,
+            servo_right_angle=120,
+        )
+        service = ServoService(MockServoController(settings), RobotStateStore(), settings)
+
+        calibration = service.get_calibration()
+
+        self.assertEqual(calibration["min_angle"], 30)
+        self.assertEqual(calibration["max_angle"], 150)
+        self.assertEqual(calibration["left_angle"], 60)
+        self.assertEqual(calibration["center_angle"], 90)
+        self.assertEqual(calibration["right_angle"], 120)
+
 
 if __name__ == "__main__":
     unittest.main()
