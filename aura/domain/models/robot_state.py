@@ -22,6 +22,8 @@ class RobotState:
     face_tracking: dict[str, Any] | None = None
     visitor_state: dict[str, Any] | None = None
     speech: dict[str, Any] | None = None
+    audio: dict[str, Any] | None = None
+    speech_recognition: dict[str, Any] | None = None
     visitor: str | None = None
     mode: str = "reception"
     command_count: int = 0

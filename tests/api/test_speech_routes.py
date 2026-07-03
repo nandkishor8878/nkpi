@@ -40,6 +40,14 @@ class SpeechRouteTests(unittest.TestCase):
 
         self.assertEqual(response.status_code, 400)
 
+    def test_speech_listen_returns_transcript(self):
+        response = self.client.post("/api/v1/speech/listen", json={"duration_seconds": 3})
+
+        self.assertEqual(response.status_code, 200)
+        payload = response.get_json()
+        self.assertEqual(payload["speech_recognition"]["status"], "transcribed")
+        self.assertTrue(payload["speech_recognition"]["transcript"])
+
 
 if __name__ == "__main__":
     unittest.main()

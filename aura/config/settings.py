@@ -57,6 +57,20 @@ class Settings:
     speech_timeout_seconds: float = 10.0
     speech_max_text_length: int = 240
     visitor_speak_greeting: bool = True
+    audio_recorder_provider: str = "arecord"
+    audio_enabled: bool = True
+    audio_command: str = "arecord"
+    audio_device: str = "default"
+    audio_recordings_dir: str = "/tmp/aura/audio"
+    audio_sample_rate: int = 16000
+    audio_channels: int = 1
+    audio_format: str = "S16_LE"
+    audio_default_duration_seconds: int = 4
+    audio_max_duration_seconds: int = 8
+    audio_timeout_seconds: float = 15.0
+    speech_recognition_provider: str = "mock"
+    speech_recognition_enabled: bool = True
+    speech_recognition_mock_transcript: str = "I need help at reception."
     testing: bool = False
 
     @classmethod
@@ -137,5 +151,30 @@ class Settings:
             speech_timeout_seconds=float(os.getenv("AURA_SPEECH_TIMEOUT_SECONDS", "10")),
             speech_max_text_length=int(os.getenv("AURA_SPEECH_MAX_TEXT_LENGTH", "240")),
             visitor_speak_greeting=_env_bool("AURA_VISITOR_SPEAK_GREETING", True),
+            audio_recorder_provider=os.getenv("AURA_AUDIO_RECORDER_PROVIDER", "arecord"),
+            audio_enabled=_env_bool("AURA_AUDIO_ENABLED", True),
+            audio_command=os.getenv("AURA_AUDIO_COMMAND", "arecord"),
+            audio_device=os.getenv("AURA_AUDIO_DEVICE", "default"),
+            audio_recordings_dir=os.getenv("AURA_AUDIO_RECORDINGS_DIR", "/tmp/aura/audio"),
+            audio_sample_rate=int(os.getenv("AURA_AUDIO_SAMPLE_RATE", "16000")),
+            audio_channels=int(os.getenv("AURA_AUDIO_CHANNELS", "1")),
+            audio_format=os.getenv("AURA_AUDIO_FORMAT", "S16_LE"),
+            audio_default_duration_seconds=int(
+                os.getenv("AURA_AUDIO_DEFAULT_DURATION_SECONDS", "4")
+            ),
+            audio_max_duration_seconds=int(os.getenv("AURA_AUDIO_MAX_DURATION_SECONDS", "8")),
+            audio_timeout_seconds=float(os.getenv("AURA_AUDIO_TIMEOUT_SECONDS", "15")),
+            speech_recognition_provider=os.getenv(
+                "AURA_SPEECH_RECOGNITION_PROVIDER",
+                "mock",
+            ),
+            speech_recognition_enabled=_env_bool(
+                "AURA_SPEECH_RECOGNITION_ENABLED",
+                True,
+            ),
+            speech_recognition_mock_transcript=os.getenv(
+                "AURA_SPEECH_RECOGNITION_MOCK_TRANSCRIPT",
+                "I need help at reception.",
+            ),
             testing=_env_bool("AURA_TESTING", False),
         )

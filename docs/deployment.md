@@ -210,3 +210,59 @@ If the API returns success but no sound is heard, verify the Pi audio output:
 aplay -l
 speaker-test -t wav -c 2
 ```
+
+## Visitor Listening
+
+Audio input uses ALSA `arecord`:
+
+```text
+AURA_AUDIO_RECORDER_PROVIDER=arecord
+AURA_AUDIO_ENABLED=true
+AURA_AUDIO_COMMAND=arecord
+AURA_AUDIO_DEVICE=default
+AURA_AUDIO_RECORDINGS_DIR=/tmp/aura/audio
+AURA_AUDIO_SAMPLE_RATE=16000
+AURA_AUDIO_CHANNELS=1
+AURA_AUDIO_FORMAT=S16_LE
+AURA_AUDIO_DEFAULT_DURATION_SECONDS=4
+AURA_AUDIO_MAX_DURATION_SECONDS=8
+```
+
+The first speech recognition provider is mock-backed:
+
+```text
+AURA_SPEECH_RECOGNITION_PROVIDER=mock
+AURA_SPEECH_RECOGNITION_ENABLED=true
+```
+
+Check microphone devices:
+
+```bash
+arecord -l
+```
+
+Manual recording test:
+
+```bash
+arecord -D default -f S16_LE -r 16000 -c 1 -d 4 /tmp/aura-test.wav
+aplay /tmp/aura-test.wav
+```
+
+API recording test:
+
+```bash
+curl -X POST http://localhost:5000/api/v1/audio/record \
+  -H "Content-Type: application/json" \
+  -d '{"duration_seconds":4}'
+```
+
+End-to-end listen/transcript test:
+
+```bash
+curl -X POST http://localhost:5000/api/v1/speech/listen \
+  -H "Content-Type: application/json" \
+  -d '{"duration_seconds":4}'
+```
+
+With the mock recognizer, this returns the configured mock transcript. Replace
+the recognizer provider later when the microphone path is verified.

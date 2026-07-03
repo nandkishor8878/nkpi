@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 
+from aura.application.services.audio_service import AudioService
 from aura.application.services.camera_stream_service import CameraStreamService
 from aura.application.services.face_tracking_service import FaceTrackingService
 from aura.application.services.health_service import HealthService
@@ -9,6 +10,7 @@ from aura.application.services.robot_status_service import RobotStatusService
 from aura.application.services.servo_service import ServoService
 from aura.application.services.sensor_service import SensorService
 from aura.application.services.speech_service import SpeechService
+from aura.application.services.speech_recognition_service import SpeechRecognitionService
 from aura.application.services.visitor_service import VisitorService
 from aura.application.services.vision_service import VisionService
 from aura.config.settings import Settings
@@ -30,7 +32,9 @@ class AppContainer:
     servo_service: ServoService
     robot_status_service: RobotStatusService
     sensor_service: SensorService
+    audio_service: AudioService
     speech_service: SpeechService
+    speech_recognition_service: SpeechRecognitionService
     vision_service: VisionService
     face_tracking_service: FaceTrackingService
     visitor_service: VisitorService

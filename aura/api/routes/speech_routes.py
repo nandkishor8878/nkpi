@@ -34,3 +34,20 @@ def say_text():
         return jsonify({"status": "error", "error": str(exc)}), 503
 
     return jsonify({"status": "success", "speech": result})
+
+
+@speech_bp.post("/speech/listen")
+def listen_for_speech():
+    payload = request.get_json(silent=True) or {}
+    duration_seconds = payload.get("duration_seconds")
+
+    container = get_container()
+    try:
+        result = container.speech_recognition_service.listen(duration_seconds)
+    except ValueError as exc:
+        return jsonify({"status": "error", "error": str(exc)}), 400
+    except Exception as exc:
+        container.state_store.record_error(f"Speech listen failed: {exc}")
+        return jsonify({"status": "error", "error": str(exc)}), 503
+
+    return jsonify({"status": "success", "speech_recognition": result})

@@ -20,6 +20,8 @@ Project Aura is organized as a robotics platform, not a single Flask app.
 ## Current API
 
 - `GET /`
+- `GET /api/v1/audio/status`
+- `POST /api/v1/audio/record`
 - `GET /api/v1/camera/stream`
 - `GET /video` for backward-compatible camera streaming.
 - `GET /api/v1/health`
@@ -36,6 +38,7 @@ Project Aura is organized as a robotics platform, not a single Flask app.
 - `GET /api/v1/sensors/imu/status`
 - `GET /api/v1/speech/status`
 - `POST /api/v1/speech/say`
+- `POST /api/v1/speech/listen`
 - `GET /api/v1/vision/analyze`
 - `GET /api/v1/face-tracking/status`
 - `POST /api/v1/face-tracking/track`
@@ -199,6 +202,28 @@ The current greeting is text-only and displayed on the dashboard. This is the
 extension point for speech-to-text, appointment lookup, known-face profiles,
 and Android notifications.
 
+## Audio Input
+
+Audio recording flows through:
+
+`audio_routes -> AudioService -> AudioRecorderPort`
+
+Production uses the local `arecord` command from ALSA. Development and tests use
+`MockAudioRecorder`. The audio layer only records and reports metadata; it does
+not perform speech recognition directly.
+
+Important tuning settings:
+
+- `AURA_AUDIO_RECORDER_PROVIDER`
+- `AURA_AUDIO_ENABLED`
+- `AURA_AUDIO_COMMAND`
+- `AURA_AUDIO_DEVICE`
+- `AURA_AUDIO_RECORDINGS_DIR`
+- `AURA_AUDIO_SAMPLE_RATE`
+- `AURA_AUDIO_CHANNELS`
+- `AURA_AUDIO_DEFAULT_DURATION_SECONDS`
+- `AURA_AUDIO_MAX_DURATION_SECONDS`
+
 ## Speech Output
 
 Speech output flows through:
@@ -223,3 +248,17 @@ Important tuning settings:
 - `AURA_SPEECH_PITCH`
 - `AURA_SPEECH_VOLUME`
 - `AURA_VISITOR_SPEAK_GREETING`
+
+## Speech Recognition
+
+Visitor listening flows through:
+
+`speech_routes -> SpeechRecognitionService -> AudioService + SpeechRecognitionPort`
+
+The first recognizer is intentionally mock-backed. It validates the complete
+record/listen/transcript flow before a heavier STT engine is added. A future
+Vosk, Whisper, or cloud recognizer can replace `MockSpeechRecognizer` without
+changing dashboard, visitor, or audio recording contracts.
+
+`POST /api/v1/speech/listen` records a short audio clip, transcribes it, stores
+the recognition result, and writes the latest transcript into visitor state.

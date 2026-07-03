@@ -12,6 +12,8 @@ const statusFields = {
     visitorStatus: document.querySelector("#visitor-status"),
     visitorGreetingStatus: document.querySelector("#visitor-greeting-status"),
     speechStatus: document.querySelector("#speech-status"),
+    audioStatus: document.querySelector("#audio-status"),
+    transcriptStatus: document.querySelector("#transcript-status"),
     visionStatus: document.querySelector("#vision-status"),
     faceTrackingStatus: document.querySelector("#face-tracking-status"),
     imuStatus: document.querySelector("#imu-status"),
@@ -71,6 +73,8 @@ function renderStatus(status) {
     statusFields.visitorStatus.textContent = formatVisitor(status.visitor_state, status.visitor);
     statusFields.visitorGreetingStatus.textContent = formatGreeting(status.visitor_state);
     statusFields.speechStatus.textContent = formatSpeech(status.speech);
+    statusFields.audioStatus.textContent = formatAudio(status.audio);
+    statusFields.transcriptStatus.textContent = formatTranscript(status.visitor_state, status.speech_recognition);
     statusFields.visionStatus.textContent = formatVision(status.vision);
     statusFields.faceTrackingStatus.textContent = formatFaceTracking(status.face_tracking);
     statusFields.imuStatus.textContent = formatImu(status.sensors.imu);
@@ -166,6 +170,34 @@ function formatSpeech(speech) {
     }
 
     return speech.status || "--";
+}
+
+function formatAudio(audio) {
+    if (!audio) {
+        return "--";
+    }
+
+    if (audio.status === "recorded") {
+        return `${audio.duration_seconds}s recorded`;
+    }
+
+    if (audio.status === "disabled") {
+        return "Disabled";
+    }
+
+    return audio.status || "--";
+}
+
+function formatTranscript(visitorState, recognition) {
+    if (visitorState && visitorState.latest_transcript) {
+        return visitorState.latest_transcript;
+    }
+
+    if (recognition && recognition.transcript) {
+        return recognition.transcript;
+    }
+
+    return "--";
 }
 
 function formatVision(vision) {
@@ -348,6 +380,38 @@ async function speakGreeting() {
     );
 }
 
+async function checkAudioStatus() {
+    await runCommand("Mic status", () => requestJson("/api/v1/audio/status"));
+}
+
+async function recordAudio() {
+    await runCommand(
+        "Audio record",
+        () => requestJson(
+            "/api/v1/audio/record",
+            {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({duration_seconds: 4})
+            }
+        )
+    );
+}
+
+async function listenForSpeech() {
+    await runCommand(
+        "Listen",
+        () => requestJson(
+            "/api/v1/speech/listen",
+            {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({duration_seconds: 4})
+            }
+        )
+    );
+}
+
 function toggleFaceTracking() {
     const button = document.querySelector("[data-action='face-track-auto']");
 
@@ -390,6 +454,9 @@ document.querySelector("[data-action='face-track-auto']").addEventListener("clic
 document.querySelector("[data-action='visitor-check']").addEventListener("click", checkVisitor);
 document.querySelector("[data-action='visitor-reset']").addEventListener("click", resetVisitor);
 document.querySelector("[data-action='speech-say']").addEventListener("click", speakGreeting);
+document.querySelector("[data-action='audio-status']").addEventListener("click", checkAudioStatus);
+document.querySelector("[data-action='audio-record']").addEventListener("click", recordAudio);
+document.querySelector("[data-action='speech-listen']").addEventListener("click", listenForSpeech);
 document.querySelector("[data-action='read-imu']").addEventListener("click", readImu);
 document.querySelector("[data-action='read-imu-status']").addEventListener("click", readImuStatus);
 

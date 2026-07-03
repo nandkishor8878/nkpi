@@ -44,6 +44,8 @@ class RobotStatusService:
             "visitor_state": state.visitor_state,
             "visitor": state.visitor,
             "speech": state.speech,
+            "audio": state.audio,
+            "speech_recognition": state.speech_recognition,
             "diagnostics": {
                 "command_count": state.command_count,
                 "error_count": state.error_count,

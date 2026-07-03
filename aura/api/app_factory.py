@@ -3,6 +3,7 @@ import atexit
 from flask import Flask
 
 from aura.api.dependencies import AppContainer
+from aura.api.routes.audio_routes import audio_bp
 from aura.api.routes.camera_routes import camera_bp
 from aura.api.routes.face_tracking_routes import face_tracking_bp
 from aura.api.routes.health_routes import health_bp
@@ -15,6 +16,7 @@ from aura.api.routes.visitor_routes import visitor_bp
 from aura.api.routes.vision_routes import vision_bp
 from aura.api.routes.web_routes import web_bp
 from aura.application.services.camera_stream_service import CameraStreamService
+from aura.application.services.audio_service import AudioService
 from aura.application.services.face_tracking_service import FaceTrackingService
 from aura.application.services.health_service import HealthService
 from aura.application.services.robot_control_service import RobotControlService
@@ -23,14 +25,18 @@ from aura.application.services.robot_status_service import RobotStatusService
 from aura.application.services.servo_service import ServoService
 from aura.application.services.sensor_service import SensorService
 from aura.application.services.speech_service import SpeechService
+from aura.application.services.speech_recognition_service import SpeechRecognitionService
 from aura.application.services.visitor_service import VisitorService
 from aura.application.services.vision_service import VisionService
 from aura.config.settings import Settings
 from aura.infrastructure.actuators.mock_servo_controller import MockServoController
 from aura.infrastructure.actuators.pca9685_servo_controller import Pca9685ServoController
 from aura.infrastructure.actuators.servo_controller import ServoController
+from aura.infrastructure.audio.arecord_audio_recorder import ArecordAudioRecorder
 from aura.infrastructure.audio.espeak_speech_synthesizer import EspeakSpeechSynthesizer
+from aura.infrastructure.audio.mock_audio_recorder import MockAudioRecorder
 from aura.infrastructure.audio.mock_speech_synthesizer import MockSpeechSynthesizer
+from aura.infrastructure.audio.mock_speech_recognizer import MockSpeechRecognizer
 from aura.infrastructure.camera.mock_camera import MockCamera
 from aura.infrastructure.camera.pi_camera import PiCamera
 from aura.infrastructure.communication.mock_transport import MockTransport
@@ -55,6 +61,7 @@ def create_app(settings: Settings | None = None) -> Flask:
         atexit.register(container.close)
 
     app.register_blueprint(web_bp)
+    app.register_blueprint(audio_bp)
     app.register_blueprint(camera_bp)
     app.register_blueprint(health_bp)
     app.register_blueprint(status_bp)
@@ -91,8 +98,19 @@ def _build_container(settings: Settings) -> AppContainer:
         state_store,
         settings,
     )
+    audio_service = AudioService(
+        _build_audio_recorder(settings),
+        state_store,
+        settings,
+    )
     speech_service = SpeechService(
         _build_speech_synthesizer(settings),
+        state_store,
+        settings,
+    )
+    speech_recognition_service = SpeechRecognitionService(
+        audio_service,
+        _build_speech_recognizer(settings),
         state_store,
         settings,
     )
@@ -114,7 +132,9 @@ def _build_container(settings: Settings) -> AppContainer:
         servo_service=servo_service,
         robot_status_service=RobotStatusService(state_store, health_service),
         sensor_service=SensorService(ultrasonic_sensor, imu_sensor, state_store, settings),
+        audio_service=audio_service,
         speech_service=speech_service,
+        speech_recognition_service=speech_recognition_service,
         vision_service=vision_service,
         face_tracking_service=face_tracking_service,
         visitor_service=visitor_service,
@@ -149,3 +169,19 @@ def _build_speech_synthesizer(settings: Settings):
     if settings.speech_provider == "espeak":
         return EspeakSpeechSynthesizer(settings)
     raise ValueError(f"Unsupported speech provider: {settings.speech_provider}")
+
+
+def _build_audio_recorder(settings: Settings):
+    if settings.testing or settings.audio_recorder_provider == "mock":
+        return MockAudioRecorder(settings)
+    if settings.audio_recorder_provider == "arecord":
+        return ArecordAudioRecorder(settings)
+    raise ValueError(f"Unsupported audio recorder provider: {settings.audio_recorder_provider}")
+
+
+def _build_speech_recognizer(settings: Settings):
+    if settings.speech_recognition_provider == "mock":
+        return MockSpeechRecognizer(settings)
+    raise ValueError(
+        f"Unsupported speech recognition provider: {settings.speech_recognition_provider}"
+    )

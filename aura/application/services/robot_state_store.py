@@ -57,6 +57,30 @@ class RobotStateStore:
         self._state.speech = speech
         self.record_command(f"Speech {speech.get('status', 'unknown')}")
 
+    def set_audio(self, audio: dict) -> None:
+        self._state.audio = audio
+        self.record_command(f"Audio {audio.get('status', 'unknown')}")
+
+    def set_speech_recognition(self, recognition: dict) -> None:
+        self._state.speech_recognition = recognition
+        self.record_command(f"Speech recognition {recognition.get('status', 'unknown')}")
+
+    def set_visitor_transcript(self, transcript: str, recognition: dict) -> None:
+        visitor_state = self._state.visitor_state or {
+            "state": "waiting_for_response",
+            "display": "Waiting for response",
+        }
+        visitor_state = {
+            **visitor_state,
+            "state": "waiting_for_response",
+            "display": "Waiting for response",
+            "latest_transcript": transcript,
+            "speech_recognition": recognition,
+        }
+        self._state.visitor_state = visitor_state
+        self._state.visitor = visitor_state.get("display")
+        self.record_command("Visitor transcript updated")
+
     def record_command(self, message: str) -> None:
         self._state.command_count += 1
         self._state.last_command = message
