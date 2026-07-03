@@ -8,7 +8,10 @@ from aura.application.services.robot_state_store import RobotStateStore
 from aura.application.services.robot_status_service import RobotStatusService
 from aura.application.services.servo_service import ServoService
 from aura.application.services.sensor_service import SensorService
+from aura.application.services.speech_service import SpeechService
+from aura.application.services.visitor_service import VisitorService
 from aura.application.services.vision_service import VisionService
+from aura.config.settings import Settings
 from aura.domain.ports.camera_port import CameraPort
 from aura.domain.ports.command_transport_port import CommandTransportPort
 from aura.infrastructure.actuators.servo_controller import ServoController
@@ -16,6 +19,7 @@ from aura.infrastructure.actuators.servo_controller import ServoController
 
 @dataclass
 class AppContainer:
+    settings: Settings
     camera: CameraPort
     transport: CommandTransportPort
     servo_controller: ServoController
@@ -26,8 +30,10 @@ class AppContainer:
     servo_service: ServoService
     robot_status_service: RobotStatusService
     sensor_service: SensorService
+    speech_service: SpeechService
     vision_service: VisionService
     face_tracking_service: FaceTrackingService
+    visitor_service: VisitorService
 
     def close(self) -> None:
         self.camera.close()

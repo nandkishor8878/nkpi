@@ -43,6 +43,20 @@ class Settings:
     face_tracking_step_degrees: int = 4
     face_tracking_invert_servo: bool = False
     face_tracking_smooth: bool = True
+    visitor_greeting_message: str = "Hello, welcome. How can I help you today?"
+    visitor_greeting_cooldown_seconds: float = 30.0
+    visitor_presence_timeout_seconds: float = 5.0
+    visitor_greeting_display_seconds: float = 3.0
+    speech_provider: str = "espeak"
+    speech_enabled: bool = True
+    speech_command: str = "espeak-ng"
+    speech_voice: str = ""
+    speech_speed_wpm: int = 155
+    speech_pitch: int = 50
+    speech_volume: int = 120
+    speech_timeout_seconds: float = 10.0
+    speech_max_text_length: int = 240
+    visitor_speak_greeting: bool = True
     testing: bool = False
 
     @classmethod
@@ -100,5 +114,28 @@ class Settings:
                 "AURA_FACE_TRACKING_INVERT_SERVO", False
             ),
             face_tracking_smooth=_env_bool("AURA_FACE_TRACKING_SMOOTH", True),
+            visitor_greeting_message=os.getenv(
+                "AURA_VISITOR_GREETING_MESSAGE",
+                "Hello, welcome. How can I help you today?",
+            ),
+            visitor_greeting_cooldown_seconds=float(
+                os.getenv("AURA_VISITOR_GREETING_COOLDOWN_SECONDS", "30")
+            ),
+            visitor_presence_timeout_seconds=float(
+                os.getenv("AURA_VISITOR_PRESENCE_TIMEOUT_SECONDS", "5")
+            ),
+            visitor_greeting_display_seconds=float(
+                os.getenv("AURA_VISITOR_GREETING_DISPLAY_SECONDS", "3")
+            ),
+            speech_provider=os.getenv("AURA_SPEECH_PROVIDER", "espeak"),
+            speech_enabled=_env_bool("AURA_SPEECH_ENABLED", True),
+            speech_command=os.getenv("AURA_SPEECH_COMMAND", "espeak-ng"),
+            speech_voice=os.getenv("AURA_SPEECH_VOICE", ""),
+            speech_speed_wpm=int(os.getenv("AURA_SPEECH_SPEED_WPM", "155")),
+            speech_pitch=int(os.getenv("AURA_SPEECH_PITCH", "50")),
+            speech_volume=int(os.getenv("AURA_SPEECH_VOLUME", "120")),
+            speech_timeout_seconds=float(os.getenv("AURA_SPEECH_TIMEOUT_SECONDS", "10")),
+            speech_max_text_length=int(os.getenv("AURA_SPEECH_MAX_TEXT_LENGTH", "240")),
+            visitor_speak_greeting=_env_bool("AURA_VISITOR_SPEAK_GREETING", True),
             testing=_env_bool("AURA_TESTING", False),
         )

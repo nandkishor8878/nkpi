@@ -40,12 +40,22 @@ class RobotStateStore:
         self._state.vision = vision
         face_count = vision.get("face_count", 0)
         qr_count = vision.get("qr_count", 0)
-        self._state.visitor = "Detected" if face_count else None
+        if self._state.visitor_state is None:
+            self._state.visitor = "Detected" if face_count else None
         self.record_command(f"Vision scan faces={face_count} qr={qr_count}")
 
     def set_face_tracking(self, tracking: dict) -> None:
         self._state.face_tracking = tracking
         self.record_command(f"Face tracking {tracking.get('status', 'unknown')}")
+
+    def set_visitor_state(self, visitor_state: dict) -> None:
+        self._state.visitor_state = visitor_state
+        self._state.visitor = visitor_state.get("display")
+        self.record_command(f"Visitor {visitor_state.get('state', 'unknown')}")
+
+    def set_speech(self, speech: dict) -> None:
+        self._state.speech = speech
+        self.record_command(f"Speech {speech.get('status', 'unknown')}")
 
     def record_command(self, message: str) -> None:
         self._state.command_count += 1

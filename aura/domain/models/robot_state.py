@@ -20,6 +20,8 @@ class RobotState:
     imu: dict[str, Any] | None = None
     vision: dict[str, Any] | None = None
     face_tracking: dict[str, Any] | None = None
+    visitor_state: dict[str, Any] | None = None
+    speech: dict[str, Any] | None = None
     visitor: str | None = None
     mode: str = "reception"
     command_count: int = 0

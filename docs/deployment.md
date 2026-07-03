@@ -17,6 +17,13 @@ The direct Raspberry Pi PCA9685 servo driver requires:
 adafruit-circuitpython-servokit
 ```
 
+Speech output requires a local TTS command on the Raspberry Pi:
+
+```bash
+sudo apt update
+sudo apt install -y espeak-ng alsa-utils
+```
+
 The import used by the application is:
 
 ```python
@@ -151,4 +158,55 @@ Then restart:
 
 ```bash
 sudo systemctl restart aura.service
+```
+
+## Visitor Greeting
+
+Visitor checks use face tracking and the configured greeting text:
+
+```text
+AURA_VISITOR_GREETING_MESSAGE=Hello, welcome. How can I help you today?
+AURA_VISITOR_GREETING_COOLDOWN_SECONDS=30
+AURA_VISITOR_PRESENCE_TIMEOUT_SECONDS=5
+AURA_VISITOR_GREETING_DISPLAY_SECONDS=3
+AURA_VISITOR_SPEAK_GREETING=true
+
+AURA_SPEECH_PROVIDER=espeak
+AURA_SPEECH_ENABLED=true
+AURA_SPEECH_COMMAND=espeak-ng
+AURA_SPEECH_VOICE=
+AURA_SPEECH_SPEED_WPM=155
+AURA_SPEECH_PITCH=50
+AURA_SPEECH_VOLUME=120
+AURA_SPEECH_TIMEOUT_SECONDS=10
+AURA_SPEECH_MAX_TEXT_LENGTH=240
+```
+
+Manual test:
+
+```bash
+curl -X POST http://localhost:5000/api/v1/visitor/check \
+  -H "Content-Type: application/json" \
+  -d '{"track":true}'
+```
+
+Read current visitor state:
+
+```bash
+curl http://localhost:5000/api/v1/visitor/status
+```
+
+Manual speech test:
+
+```bash
+curl -X POST http://localhost:5000/api/v1/speech/say \
+  -H "Content-Type: application/json" \
+  -d '{"text":"Hello, welcome. How can I help you today?"}'
+```
+
+If the API returns success but no sound is heard, verify the Pi audio output:
+
+```bash
+aplay -l
+speaker-test -t wav -c 2
 ```

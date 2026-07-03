@@ -34,9 +34,14 @@ Project Aura is organized as a robotics platform, not a single Flask app.
 - `GET /api/v1/sensors/proximity`
 - `GET /api/v1/sensors/imu`
 - `GET /api/v1/sensors/imu/status`
+- `GET /api/v1/speech/status`
+- `POST /api/v1/speech/say`
 - `GET /api/v1/vision/analyze`
 - `GET /api/v1/face-tracking/status`
 - `POST /api/v1/face-tracking/track`
+- `GET /api/v1/visitor/status`
+- `POST /api/v1/visitor/check`
+- `POST /api/v1/visitor/reset`
 
 ## Next Expansion Points
 
@@ -164,3 +169,57 @@ Important tuning settings:
 The dashboard supports a single Track command and browser-driven Auto tracking.
 Auto tracking calls the same one-shot API on a timer, so stopping it from the UI
 does not require killing a backend worker.
+
+## Visitor Flow
+
+Visitor checks flow through:
+
+`visitor_routes -> VisitorService -> FaceTrackingService -> VisionService + ServoService`
+
+`VisitorService` is the first receptionist behavior layer. It checks whether a
+face is present, lets face tracking center the camera, updates structured
+visitor state, and produces a text greeting with a cooldown so Aura does not
+repeat itself every dashboard poll.
+
+Visitor states:
+
+- `no_visitor`
+- `visitor_detected`
+- `greeting`
+- `waiting_for_response`
+
+Important tuning settings:
+
+- `AURA_VISITOR_GREETING_MESSAGE`
+- `AURA_VISITOR_GREETING_COOLDOWN_SECONDS`
+- `AURA_VISITOR_PRESENCE_TIMEOUT_SECONDS`
+- `AURA_VISITOR_GREETING_DISPLAY_SECONDS`
+
+The current greeting is text-only and displayed on the dashboard. This is the
+extension point for speech-to-text, appointment lookup, known-face profiles,
+and Android notifications.
+
+## Speech Output
+
+Speech output flows through:
+
+`speech_routes -> SpeechService -> SpeechPort`
+
+The production speech adapter uses the local `espeak-ng` command, which keeps
+the Raspberry Pi working offline. Tests and development use
+`MockSpeechSynthesizer`.
+
+`VisitorService` composes `SpeechService`, so a generated greeting can be spoken
+at the same time it is written into visitor state. Speech output is also exposed
+directly through `POST /api/v1/speech/say` for dashboard/manual tests.
+
+Important tuning settings:
+
+- `AURA_SPEECH_PROVIDER`
+- `AURA_SPEECH_ENABLED`
+- `AURA_SPEECH_COMMAND`
+- `AURA_SPEECH_VOICE`
+- `AURA_SPEECH_SPEED_WPM`
+- `AURA_SPEECH_PITCH`
+- `AURA_SPEECH_VOLUME`
+- `AURA_VISITOR_SPEAK_GREETING`

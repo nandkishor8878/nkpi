@@ -41,7 +41,9 @@ class RobotStatusService:
             },
             "vision": state.vision,
             "face_tracking": state.face_tracking,
+            "visitor_state": state.visitor_state,
             "visitor": state.visitor,
+            "speech": state.speech,
             "diagnostics": {
                 "command_count": state.command_count,
                 "error_count": state.error_count,

@@ -10,6 +10,8 @@ const statusFields = {
     distanceStatus: document.querySelector("#distance-status"),
     proximityStatus: document.querySelector("#proximity-status"),
     visitorStatus: document.querySelector("#visitor-status"),
+    visitorGreetingStatus: document.querySelector("#visitor-greeting-status"),
+    speechStatus: document.querySelector("#speech-status"),
     visionStatus: document.querySelector("#vision-status"),
     faceTrackingStatus: document.querySelector("#face-tracking-status"),
     imuStatus: document.querySelector("#imu-status"),
@@ -66,7 +68,9 @@ function renderStatus(status) {
     statusFields.servo0Status.textContent = formatServo(status.actuators.servos["0"]);
     statusFields.distanceStatus.textContent = formatDistance(status.sensors.distance_cm);
     statusFields.proximityStatus.textContent = formatProximity(status.sensors.proximity_detected);
-    statusFields.visitorStatus.textContent = status.visitor || "None";
+    statusFields.visitorStatus.textContent = formatVisitor(status.visitor_state, status.visitor);
+    statusFields.visitorGreetingStatus.textContent = formatGreeting(status.visitor_state);
+    statusFields.speechStatus.textContent = formatSpeech(status.speech);
     statusFields.visionStatus.textContent = formatVision(status.vision);
     statusFields.faceTrackingStatus.textContent = formatFaceTracking(status.face_tracking);
     statusFields.imuStatus.textContent = formatImu(status.sensors.imu);
@@ -122,6 +126,46 @@ function formatProximity(detected) {
     }
 
     return detected ? "Detected" : "Clear";
+}
+
+function formatVisitor(visitorState, fallback) {
+    if (visitorState && visitorState.display) {
+        return visitorState.display;
+    }
+
+    return fallback || "No visitor";
+}
+
+function formatGreeting(visitorState) {
+    if (!visitorState) {
+        return "--";
+    }
+
+    if (visitorState.greeting) {
+        return visitorState.greeting;
+    }
+
+    if (typeof visitorState.greeting_count === "number") {
+        return `${visitorState.greeting_count} sent`;
+    }
+
+    return "--";
+}
+
+function formatSpeech(speech) {
+    if (!speech) {
+        return "--";
+    }
+
+    if (speech.status === "spoken") {
+        return "Spoken";
+    }
+
+    if (speech.status === "disabled") {
+        return "Disabled";
+    }
+
+    return speech.status || "--";
 }
 
 function formatVision(vision) {
@@ -269,6 +313,41 @@ async function trackFace() {
     );
 }
 
+async function checkVisitor() {
+    await runCommand(
+        "Visitor check",
+        () => requestJson(
+            "/api/v1/visitor/check",
+            {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({track: true})
+            }
+        )
+    );
+}
+
+async function resetVisitor() {
+    await runCommand(
+        "Visitor reset",
+        () => requestJson("/api/v1/visitor/reset", {method: "POST"})
+    );
+}
+
+async function speakGreeting() {
+    await runCommand(
+        "Speak greeting",
+        () => requestJson(
+            "/api/v1/speech/say",
+            {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({})
+            }
+        )
+    );
+}
+
 function toggleFaceTracking() {
     const button = document.querySelector("[data-action='face-track-auto']");
 
@@ -308,6 +387,9 @@ document.querySelector("[data-action='read-proximity']").addEventListener("click
 document.querySelector("[data-action='vision-scan']").addEventListener("click", scanVision);
 document.querySelector("[data-action='face-track']").addEventListener("click", trackFace);
 document.querySelector("[data-action='face-track-auto']").addEventListener("click", toggleFaceTracking);
+document.querySelector("[data-action='visitor-check']").addEventListener("click", checkVisitor);
+document.querySelector("[data-action='visitor-reset']").addEventListener("click", resetVisitor);
+document.querySelector("[data-action='speech-say']").addEventListener("click", speakGreeting);
 document.querySelector("[data-action='read-imu']").addEventListener("click", readImu);
 document.querySelector("[data-action='read-imu-status']").addEventListener("click", readImuStatus);
 
